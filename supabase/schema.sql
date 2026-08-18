@@ -3,6 +3,24 @@ create extension if not exists pgcrypto;
 create type public.post_visibility as enum ('private', 'public');
 create type public.idea_status as enum ('todo', 'done');
 
+create table public.admin_emails (
+  email text primary key,
+  created_at timestamptz not null default now()
+);
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security invoker
+as $$
+  select exists (
+    select 1
+    from public.admin_emails
+    where lower(email) = lower(auth.jwt() ->> 'email')
+  );
+$$;
+
 create table public.posts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -56,6 +74,16 @@ alter table public.posts enable row level security;
 alter table public.photos enable row level security;
 alter table public.places enable row level security;
 alter table public.ideas enable row level security;
+alter table public.admin_emails enable row level security;
+
+revoke all on public.admin_emails from anon;
+revoke insert, update, delete, truncate, references, trigger on public.admin_emails from authenticated;
+grant select on public.admin_emails to authenticated;
+
+create policy "Admins can read admin emails"
+on public.admin_emails for select
+to authenticated
+using (lower(email) = lower(auth.jwt() ->> 'email'));
 
 create policy "Users can read own posts"
 on public.posts for select
@@ -67,39 +95,51 @@ on public.posts for select
 to anon, authenticated
 using (visibility = 'public');
 
-create policy "Users can create own posts"
+create policy "Admins can create posts"
 on public.posts for insert
 to authenticated
-with check ((select auth.uid()) = user_id);
+with check (public.is_admin());
 
-create policy "Users can update own posts"
+create policy "Admins can update posts"
 on public.posts for update
 to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
+using (public.is_admin())
+with check (public.is_admin());
 
-create policy "Users can delete own posts"
+create policy "Admins can delete posts"
 on public.posts for delete
 to authenticated
-using ((select auth.uid()) = user_id);
+using (public.is_admin());
 
-create policy "Users can manage own photos"
+create policy "Public can read photos for public posts"
+on public.photos for select
+to anon, authenticated
+using (
+  exists (
+    select 1
+    from public.posts
+    where posts.id = photos.post_id
+      and posts.visibility = 'public'
+  )
+);
+
+create policy "Admins can manage photos"
 on public.photos for all
 to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
+using (public.is_admin())
+with check (public.is_admin());
 
-create policy "Users can manage own places"
+create policy "Admins can manage places"
 on public.places for all
 to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
+using (public.is_admin())
+with check (public.is_admin());
 
-create policy "Users can manage own ideas"
+create policy "Admins can manage ideas"
 on public.ideas for all
 to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
+using (public.is_admin())
+with check (public.is_admin());
 
 insert into storage.buckets (id, name, public)
 values ('trip-photos', 'trip-photos', true)

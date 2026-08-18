@@ -169,6 +169,64 @@
   line-height: 1.55;
 }
 
+.flightPlan {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1fr) repeat(3, auto);
+  gap: 14px;
+  align-items: center;
+  width: min(900px, 100%);
+  max-width: none !important;
+  margin-top: 22px;
+  padding: 14px 16px;
+  color: #ffffff;
+  background: rgb(255 255 255 / 13%);
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 8px;
+  backdrop-filter: blur(12px);
+}
+
+.flightIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  color: #0b2826;
+  background: #d8f7ec;
+  border-radius: 8px;
+}
+
+.flightLabel,
+.flightMetric span {
+  display: block;
+  color: rgb(255 255 255 / 72%) !important;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.flightRoute {
+  display: block;
+  color: #ffffff !important;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.flightMetric {
+  min-width: 104px;
+  padding-left: 14px;
+  border-left: 1px solid rgb(255 255 255 / 18%);
+}
+
+.flightMetric strong {
+  display: block;
+  margin-top: 3px;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
 .sectionCard {
   border: 1px solid #dde5dd;
 }
@@ -188,6 +246,32 @@
 .sectionHeader h3 {
   margin: 0 0 6px !important;
   color: #24324a !important;
+}
+
+.timelineDays {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.timelineDay {
+  padding-top: 2px;
+}
+
+.dayHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 0 0 14px 10px;
+  border-bottom: 1px solid #edf1ec;
+}
+
+.dayHeader h4 {
+  margin: 4px 0 0 !important;
+  color: #24324a !important;
+  text-transform: capitalize;
 }
 
 .entryCard {
@@ -289,11 +373,56 @@
   gap: 8px;
 }
 
+.existingPhotoItem {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background: #f3f5ef;
+}
+
+.existingPhotoItem :global(.ant-image) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.existingPhotoItem[data-removed="true"] :global(.ant-image-img) {
+  opacity: 0.28;
+  filter: grayscale(1);
+}
+
 .existingPhotoGrid :global(.ant-image-img) {
   width: 100%;
-  aspect-ratio: 1;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+}
+
+.removePhotoButton {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: #ffffff;
+  cursor: pointer;
+  background: rgb(24 36 58 / 72%);
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgb(20 63 59 / 18%);
+}
+
+.removePhotoButton:hover {
+  background: #d4383f;
+}
+
+.existingPhotoItem[data-removed="true"] .removePhotoButton {
+  background: #0e6f68;
 }
 
 .photoCard {
@@ -376,6 +505,15 @@
 .ideaRow:hover {
   border-color: #9fc9bd;
   background: #fbfdfb;
+}
+
+.ideaRow:disabled {
+  cursor: default;
+}
+
+.ideaRow:disabled:hover {
+  border-color: #dde5dd;
+  background: #ffffff;
 }
 
 .ideaStatus {
@@ -492,6 +630,14 @@
   background: #fbfdfb;
 }
 
+.panelItemButton:disabled {
+  cursor: default;
+}
+
+.panelItemButton:disabled:hover {
+  background: transparent;
+}
+
 .panelItem:first-child {
   padding-top: 0;
 }
@@ -511,10 +657,21 @@
 }
 
 @media (max-width: 760px) {
+  .sider {
+    display: none;
+  }
+
   .header {
     align-items: flex-start;
     flex-direction: column;
-    padding: 14px 16px;
+    gap: 12px;
+    height: auto;
+    min-height: 0;
+    padding: 14px 14px 12px;
+    line-height: normal;
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
 
   .headerTitleBlock,
@@ -526,70 +683,244 @@
     min-width: 0;
   }
 
-  .content {
-    padding: 14px;
+  .kicker {
+    font-size: 11px;
   }
 
-  .hero,
-  .heroImage {
-    min-height: 330px;
-    height: 330px !important;
+  .pageTitle {
+    font-size: 24px !important;
+    line-height: 1.12 !important;
+  }
+
+  .headerActions {
+    gap: 8px !important;
+    justify-content: stretch;
+  }
+
+  .headerActions :global(.ant-space-item:first-child) {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .headerActions :global(.ant-segmented) {
+    width: 100%;
+  }
+
+  .headerActions :global(.ant-segmented-group) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .headerActions :global(.ant-segmented-item-label) {
+    min-height: 34px;
+    padding: 0 7px;
+    font-size: 13px;
+    line-height: 34px;
+  }
+
+  .headerActions :global(.ant-btn) {
+    height: 36px;
+  }
+
+  .content {
+    padding: 12px 10px 18px;
+  }
+
+  .dashboardGrid {
+    max-width: 100%;
+  }
+
+  .mainStack,
+  .sideStack {
+    gap: 12px;
+  }
+
+  .hero {
+    min-height: 560px;
+    border-radius: 8px;
   }
 
   .hero :global(.ant-image) {
-    height: 330px;
+    position: absolute;
+    inset: 0;
+    height: 100%;
+  }
+
+  .heroImage {
+    height: 100% !important;
+    object-position: center top;
   }
 
   .heroOverlay {
-    padding: 26px 18px 22px;
+    justify-content: flex-end;
+    padding: 22px 14px 16px;
     background:
-      linear-gradient(180deg, rgb(8 32 34 / 20%) 0%, rgb(8 32 34 / 84%) 100%),
-      linear-gradient(90deg, rgb(8 32 34 / 78%) 0%, rgb(8 32 34 / 28%) 100%);
+      linear-gradient(180deg, rgb(8 32 34 / 14%) 0%, rgb(8 32 34 / 92%) 56%, rgb(8 32 34 / 96%) 100%),
+      linear-gradient(90deg, rgb(8 32 34 / 58%) 0%, rgb(8 32 34 / 14%) 100%);
   }
 
   .heroOverlay h1 {
-    font-size: 30px !important;
+    margin: 10px 0 8px !important;
+    font-size: 31px !important;
+    line-height: 1.06 !important;
+  }
+
+  .heroOverlay div {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .heroOverlay :global(.ant-tag) {
+    max-width: 100%;
+    margin-inline-end: 0;
+    white-space: normal;
+    line-height: 1.25;
+  }
+
+  .flightPlan {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+    padding: 12px;
+  }
+
+  .flightRoute {
+    font-size: 16px;
+  }
+
+  .flightMetric {
+    grid-column: span 2;
+    min-width: 0;
+    padding: 9px 0 0;
+    border-top: 1px solid rgb(255 255 255 / 18%);
+    border-left: 0;
+  }
+
+  .flightMetric strong {
+    white-space: normal;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .sectionHeader h3 {
+    font-size: 24px !important;
   }
 
   .sectionCard :global(.ant-card-body) {
-    padding: 18px 14px;
+    padding: 16px 12px;
+  }
+
+  .timelineDays {
+    gap: 18px;
+  }
+
+  .dayHeader {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-left: 0;
+  }
+
+  .dayHeader h4 {
+    font-size: 20px !important;
+  }
+
+  .timelineDay :global(.ant-timeline) {
+    margin-left: -6px;
+  }
+
+  .entryCard {
+    min-height: 0;
   }
 
   .entryCard :global(.ant-card-body) {
-    padding: 22px 22px 34px !important;
+    padding: 16px 14px 24px !important;
   }
 
   .entryHeader {
     grid-template-columns: 1fr;
     gap: 8px;
+    margin-bottom: 10px;
   }
 
   .entryActions {
-    justify-content: flex-start;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
   }
 
   .entryTitleGroup h4 {
-    font-size: 22px !important;
+    font-size: 21px !important;
+    line-height: 1.2 !important;
+  }
+
+  .entryBody {
+    margin-bottom: 16px !important;
+    font-size: 15px;
+    line-height: 1.55;
   }
 
   .entryImages {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .entryImages :global(.ant-image-img) {
+    aspect-ratio: 4 / 3;
+  }
+
+  .entryMeta {
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    padding-top: 16px !important;
+  }
+
+  .entryMeta :global(.ant-space) {
+    justify-content: flex-start;
   }
 
   .existingPhotoGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .photoCard :global(.ant-card-body) {
+    min-height: 72px;
+    padding: 12px;
   }
 
   .placesGrid {
     grid-template-columns: 1fr;
   }
 
+  .placeCard :global(.ant-card-body) {
+    min-height: 0;
+    padding: 16px;
+  }
+
   .ideaRow {
     grid-template-columns: auto minmax(0, 1fr);
+    padding: 14px;
   }
 
   .ideaRow :global(.ant-tag) {
     grid-column: 2;
     width: fit-content;
+  }
+
+  .panelCard {
+    min-height: 0;
+  }
+
+  .statsRow {
+    row-gap: 10px;
+  }
+
+  .statsRow :global(.ant-col) {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
   }
 }

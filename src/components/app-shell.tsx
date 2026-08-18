@@ -8,11 +8,15 @@ import {
   Cloud,
   CloudOff,
   Compass,
+  Plane,
+  LogIn,
+  LogOut,
   Pencil,
   Lightbulb,
   MapPin,
   Plus,
-  Sparkles
+  Sparkles,
+  X
 } from "lucide-react";
 import {
   Avatar,
@@ -28,7 +32,6 @@ import {
   Layout,
   Menu,
   Modal,
-  Progress,
   Rate,
   Row,
   Segmented,
@@ -48,6 +51,8 @@ import {
   saveIdeasToCloud,
   savePlacesToCloud,
   savePostsToCloud,
+  signInAdmin,
+  signOutAdmin,
   type CloudContext
 } from "@/lib/supabase/trip-sync";
 import styles from "./app-shell.module.css";
@@ -67,10 +72,15 @@ type SyncStatus = "local" | "connecting" | "cloud" | "error";
 
 const viewOptions: Array<{ label: string; value: ViewKey }> = [
   { label: "Лента", value: "journal" },
-  { label: "Фото", value: "photos" },
+  { label: "Фото", value: "photos" }
+];
+
+const workInProgressViewOptions: Array<{ label: string; value: ViewKey }> = [
   { label: "Места", value: "places" },
   { label: "Идеи", value: "ideas" }
 ];
+
+const showWorkInProgress = false;
 
 const postsStorageKey = "out-of-office.posts.v1";
 const ideasStorageKey = "out-of-office.ideas.v1";
@@ -79,10 +89,12 @@ const rostovPostId = "0d567c13-53dd-4854-aec1-f5d459190591";
 const moscowPostId = "2637cb5a-46f5-4388-8ce9-c7fe24f51d1f";
 const roomPostId = "7820addf-7529-4d5b-9c89-bc34b1d8746f";
 const preflightPostId = "8f9f3e0a-1d95-4e3d-a25d-6b8061f0fa25";
+const flightPostId = "ab43a8d4-5df8-4f6d-a611-d7894f25f211";
 const rostovSeedKey = "rostov-green-drive";
 const moscowSeedKey = "moscow-arrival";
 const roomSeedKey = "technopark-yes-apart";
 const preflightSeedKey = "preflight-charging-work";
+const flightSeedKey = "moscow-bangkok-flight";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
 const roomPlaceId = "1e8c887e-81d5-4a4d-837c-068d9eb77253";
@@ -94,13 +106,16 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
   const [journalIdeas, setJournalIdeas] = useState(ideas);
   const [isStorageReady, setIsStorageReady] = useState(false);
   const [cloudContext, setCloudContext] = useState<CloudContext | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("local");
-  const [syncMessage, setSyncMessage] = useState("Локальное сохранение");
+  const [syncMessage, setSyncMessage] = useState("Публичный просмотр");
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setJournalPosts(
-        sortPostsNewestFirst(dedupePosts(normalizeStarterPosts(readStoredValue(postsStorageKey, posts))))
+        sortPostsNewestFirst(
+          dedupePosts(normalizeStarterPosts(readStoredValue(postsStorageKey, posts), posts))
+        )
       );
       setJournalPlaces(normalizeStarterPlaces(readStoredValue(placesStorageKey, places)));
       setJournalIdeas(readStoredValue(ideasStorageKey, ideas));
@@ -162,12 +177,13 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
         return;
       }
 
-      setJournalPosts(sortPostsNewestFirst(dedupePosts(normalizeStarterPosts(result.posts))));
+      setJournalPosts(sortPostsNewestFirst(dedupePosts(normalizeStarterPosts(result.posts, posts))));
       setJournalPlaces(normalizeStarterPlaces(result.places));
       setJournalIdeas(result.ideas);
       setCloudContext(result.context);
+      setIsAdmin(result.isAdmin);
       setSyncStatus("cloud");
-      setSyncMessage(result.seeded ? "Supabase подключен, данные загружены" : "Supabase подключен");
+      setSyncMessage(result.isAdmin ? "Админ подключен" : "Публичный блог");
     }
 
     void connectCloud();
@@ -217,6 +233,7 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
       posts: journalPosts.length,
       photos: journalPosts.reduce((sum, post) => sum + post.photos.length, 0),
       places: journalPlaces.length,
+      days: getTripDays(journalPosts),
       ideasProgress:
         journalIdeas.length > 0 ? Math.round((completedIdeas / journalIdeas.length) * 100) : 0,
       currentMood: stats.currentMood
@@ -252,8 +269,12 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
           items={[
             { key: "journal", icon: <BookOpen size={18} />, label: "Дневник" },
             { key: "photos", icon: <Camera size={18} />, label: "Фото" },
-            { key: "places", icon: <MapPin size={18} />, label: "Места" },
-            { key: "ideas", icon: <Lightbulb size={18} />, label: "Идеи" }
+            ...(showWorkInProgress
+              ? [
+                  { key: "places", icon: <MapPin size={18} />, label: "Места" },
+                  { key: "ideas", icon: <Lightbulb size={18} />, label: "Идеи" }
+                ]
+              : [])
           ]}
         />
       </Sider>
@@ -268,14 +289,35 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
           </div>
           <Space className={styles.headerActions}>
             <Segmented
-              options={viewOptions}
+              options={
+                showWorkInProgress
+                  ? [...viewOptions, ...workInProgressViewOptions]
+                  : viewOptions
+              }
               value={activeView}
               onChange={(value) => setActiveView(value as ViewKey)}
             />
-            <NewPostModal
-              onCreate={(post) =>
-                setJournalPosts((currentPosts) => sortPostsNewestFirst([post, ...currentPosts]))
-              }
+            {isAdmin && (
+              <NewPostModal
+                onCreate={(post) =>
+                  setJournalPosts((currentPosts) => sortPostsNewestFirst([post, ...currentPosts]))
+                }
+              />
+            )}
+            <AdminAuthButton
+              isAdmin={isAdmin}
+              onSignIn={(context) => {
+                setCloudContext(context);
+                setIsAdmin(true);
+                setSyncStatus("cloud");
+                setSyncMessage("Админ подключен");
+              }}
+              onSignOut={() => {
+                setCloudContext(null);
+                setIsAdmin(false);
+                setSyncStatus("cloud");
+                setSyncMessage("Публичный блог");
+              }}
             />
           </Space>
         </Header>
@@ -286,13 +328,14 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
               <div className={styles.mainStack}>
                 {activeView === "journal" && (
                   <>
-                    <Hero />
+                    <Hero posts={journalPosts} />
                     <Card className={styles.sectionCard}>
                       <SectionHeader
                         title="Таймлайн"
                         subtitle="Хронология первого дня, чтобы потом легко собрать историю поездки."
                       />
                       <JournalTimeline
+                        isAdmin={isAdmin}
                         posts={journalPosts}
                         onUpdate={(updatedPost) =>
                           setJournalPosts((currentPosts) =>
@@ -318,37 +361,41 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
                   </Card>
                 )}
 
-                {activeView === "places" && (
+                {showWorkInProgress && activeView === "places" && (
                   <Card className={styles.sectionCard}>
                     <SectionHeader
                       title="Места"
                       subtitle="Точки маршрута, к которым хочется вернуться заметками."
                       action={
-                        <NewPlaceModal
-                          onCreate={(place) =>
-                            setJournalPlaces((currentPlaces) => [place, ...currentPlaces])
-                          }
-                        />
+                        isAdmin ? (
+                          <NewPlaceModal
+                            onCreate={(place) =>
+                              setJournalPlaces((currentPlaces) => [place, ...currentPlaces])
+                            }
+                          />
+                        ) : null
                       }
                     />
                     <PlacesBoard places={journalPlaces} />
                   </Card>
                 )}
 
-                {activeView === "ideas" && (
+                {showWorkInProgress && activeView === "ideas" && (
                   <Card className={styles.sectionCard}>
                     <SectionHeader
                       title="Идеи"
                       subtitle="То, что стоит дописать, проверить или сделать дальше."
                       action={
-                        <NewIdeaModal
-                          onCreate={(idea) =>
-                            setJournalIdeas((currentIdeas) => [idea, ...currentIdeas])
-                          }
-                        />
+                        isAdmin ? (
+                          <NewIdeaModal
+                            onCreate={(idea) =>
+                              setJournalIdeas((currentIdeas) => [idea, ...currentIdeas])
+                            }
+                          />
+                        ) : null
                       }
                     />
-                    <IdeasBoard ideas={journalIdeas} onToggle={handleToggleIdea} />
+                    <IdeasBoard ideas={journalIdeas} isAdmin={isAdmin} onToggle={handleToggleIdea} />
                   </Card>
                 )}
               </div>
@@ -361,15 +408,25 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
                   syncMessage={syncMessage}
                   syncStatus={syncStatus}
                 />
-                <PlacesPanel
-                  places={journalPlaces}
-                  onCreate={(place) => setJournalPlaces((currentPlaces) => [place, ...currentPlaces])}
-                />
-                <IdeasPanel
-                  ideas={journalIdeas}
-                  onCreate={(idea) => setJournalIdeas((currentIdeas) => [idea, ...currentIdeas])}
-                  onToggle={handleToggleIdea}
-                />
+                {showWorkInProgress && (
+                  <>
+                    <PlacesPanel
+                      isAdmin={isAdmin}
+                      places={journalPlaces}
+                      onCreate={(place) =>
+                        setJournalPlaces((currentPlaces) => [place, ...currentPlaces])
+                      }
+                    />
+                    <IdeasPanel
+                      ideas={journalIdeas}
+                      isAdmin={isAdmin}
+                      onCreate={(idea) =>
+                        setJournalIdeas((currentIdeas) => [idea, ...currentIdeas])
+                      }
+                      onToggle={handleToggleIdea}
+                    />
+                  </>
+                )}
               </div>
             </Col>
           </Row>
@@ -389,7 +446,97 @@ function readStoredValue<T>(key: string, fallback: T) {
   }
 }
 
-function normalizeStarterPosts(posts: Post[]) {
+type AdminLoginFormValues = {
+  email: string;
+  password: string;
+};
+
+function AdminAuthButton({
+  isAdmin,
+  onSignIn,
+  onSignOut
+}: {
+  isAdmin: boolean;
+  onSignIn: (context: CloudContext) => void;
+  onSignOut: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [form] = Form.useForm<AdminLoginFormValues>();
+
+  const handleSignOut = async () => {
+    await signOutAdmin();
+    onSignOut();
+  };
+
+  const handleSignIn = async () => {
+    const values = await form.validateFields();
+    setLoading(true);
+    setErrorMessage("");
+
+    const result = await signInAdmin(values.email.trim().toLowerCase(), values.password);
+
+    setLoading(false);
+
+    if ("error" in result) {
+      setErrorMessage(result.error ?? "Не удалось войти.");
+      return;
+    }
+
+    onSignIn(result.context);
+    form.resetFields();
+    setOpen(false);
+  };
+
+  if (isAdmin) {
+    return <Button icon={<LogOut size={16} />} onClick={handleSignOut}>Выйти</Button>;
+  }
+
+  return (
+    <>
+      <Button icon={<LogIn size={16} />} onClick={() => setOpen(true)}>
+        Админ
+      </Button>
+      <Modal
+        title="Вход администратора"
+        open={open}
+        onCancel={() => {
+          setOpen(false);
+          setErrorMessage("");
+          form.resetFields();
+        }}
+        onOk={handleSignIn}
+        confirmLoading={loading}
+        okText="Войти"
+        cancelText="Отмена"
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Укажи email администратора" },
+              { type: "email", message: "Проверь формат email" }
+            ]}
+          >
+            <Input autoComplete="email" placeholder="you@example.com" />
+          </Form.Item>
+          <Form.Item
+            label="Пароль"
+            name="password"
+            rules={[{ required: true, message: "Введи пароль" }]}
+          >
+            <Input.Password autoComplete="current-password" placeholder="Пароль" />
+          </Form.Item>
+          {errorMessage && <Text type="danger">{errorMessage}</Text>}
+        </Form>
+      </Modal>
+    </>
+  );
+}
+
+function normalizeStarterPosts(posts: Post[], fallbackPosts: Post[]) {
   const migratedPosts = posts.map((post) => {
     const inferredSeedKey = post.seedKey ?? inferSeedKey(post);
     const basePost = { ...post, seedKey: inferredSeedKey, photos: dedupePhotos(post.photos) };
@@ -452,14 +599,25 @@ function normalizeStarterPosts(posts: Post[]) {
       return { ...basePost, seedKey: preflightSeedKey };
     }
 
+    if (post.id === flightPostId || inferredSeedKey === flightSeedKey) {
+      return { ...basePost, seedKey: flightSeedKey };
+    }
+
     return basePost;
   });
 
-  if (migratedPosts.some((post) => post.id === preflightPostId || post.seedKey === preflightSeedKey)) {
-    return migratedPosts;
-  }
+  return restoreMissingStarterPosts(migratedPosts, fallbackPosts);
+}
 
-  return [preflightPost, ...migratedPosts];
+function restoreMissingStarterPosts(posts: Post[], fallbackPosts: Post[]) {
+  const existingSeedKeys = new Set(posts.map((post) => post.seedKey ?? inferSeedKey(post)));
+  const missingFallbackPosts = fallbackPosts.filter((post) => {
+    const seedKey = post.seedKey ?? inferSeedKey(post);
+
+    return seedKey ? !existingSeedKeys.has(seedKey) : false;
+  });
+
+  return [...posts, ...missingFallbackPosts];
 }
 
 function normalizeStarterPlaces(places: Place[]) {
@@ -513,6 +671,10 @@ function inferSeedKey(post: Post) {
     return preflightSeedKey;
   }
 
+  if (post.id === flightPostId || post.title.toLowerCase().includes("вылетаем в бангкок")) {
+    return flightSeedKey;
+  }
+
   if (photoSources.includes("/images/day-1/green-drive.jpg")) {
     return rostovSeedKey;
   }
@@ -544,26 +706,6 @@ function dedupePhotos(photos: Post["photos"]) {
   });
 }
 
-const preflightPost: Post = {
-  id: preflightPostId,
-  seedKey: preflightSeedKey,
-  title: "Готовимся к вылету: зарядка, работа и чемоданное настроение",
-  body:
-    "Перед вылетом поймали рабочую паузу прямо на зарядке: машина набирает проценты, ноутбук открыт, маршрут уже почти собран. В голове уже аэропорт и Таиланд, но пока спокойно доделываем дела и собираемся в следующий большой рывок.",
-  mood: "на низком старте",
-  moodColor: "green",
-  locationName: "Москва, Технопарк",
-  visitedAt: "18 августа, 13:10",
-  visitedAtIso: "2026-08-18T13:10:00+03:00",
-  tags: ["вылет", "зарядка", "работа", "москва"],
-  photos: [
-    {
-      src: "/images/day-1/charging-before-flight.jpeg",
-      caption: "Рабочая пауза на зарядке перед вылетом"
-    }
-  ]
-};
-
 function formatSyncError(error: string) {
   if (error.includes("Anonymous sign-ins are disabled")) {
     return "Включи Anonymous Auth в Supabase";
@@ -576,7 +718,11 @@ function formatSyncError(error: string) {
   return "Supabase недоступен, работаем локально";
 }
 
-function Hero() {
+function Hero({ posts }: { posts: Post[] }) {
+  const tripDays = getTripDays(posts);
+  const latestPost = posts[0];
+  const flightPost = posts.find((post) => (post.seedKey ?? inferSeedKey(post)) === flightSeedKey);
+
   return (
     <section className={styles.hero}>
       <Image
@@ -586,14 +732,45 @@ function Hero() {
         className={styles.heroImage}
       />
       <div className={styles.heroOverlay}>
-        <Tag color="green">День 1 · Ростов → Москва</Tag>
-        <Title level={1}>Первый этап отпуска</Title>
+        <Tag color="green">
+          {tripDays} {formatRussianPlural(tripDays, ["день", "дня", "дней"])} в пути · Ростов →
+          Москва → вылет
+        </Tag>
+        <Title level={1}>Маршрут набирает главы</Title>
         <Paragraph>
-          Ночная зарядка, дорога, московские виды и первая пауза в номере 18.13 перед
-          большим продолжением.
+          {latestPost
+            ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
+            : "Ночная зарядка, дорога, московские виды и подготовка к вылету собираются в живой дневник."}
         </Paragraph>
+        {flightPost && <FlightPlanCard />}
       </div>
     </section>
+  );
+}
+
+function FlightPlanCard() {
+  return (
+    <div className={styles.flightPlan}>
+      <span className={styles.flightIcon}>
+        <Plane size={18} />
+      </span>
+      <div>
+        <Text className={styles.flightLabel}>Следующий этап</Text>
+        <Text className={styles.flightRoute}>{"Москва -> Бангкок"}</Text>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Вылет</Text>
+        <strong>18 авг · 22:25</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>В пути</Text>
+        <strong>9 часов</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Бангкок</Text>
+        <strong>19 авг · 11:25</strong>
+      </div>
+    </div>
   );
 }
 
@@ -810,6 +987,91 @@ function formatJournalDate(date: Dayjs) {
   }).format(date.toDate());
 }
 
+function groupPostsByDay(posts: Post[]) {
+  const sortedPosts = sortPostsNewestFirst(posts);
+  const sortedDayKeys = Array.from(new Set(sortedPosts.map((post) => getPostDateKey(post))));
+  const earliestTime = Math.min(...sortedPosts.map((post) => getPostDate(post).getTime()));
+  const earliestDay = startOfDay(
+    new Date(Number.isFinite(earliestTime) ? earliestTime : Date.now())
+  );
+
+  return sortedDayKeys.map((dateKey) => {
+    const groupPosts = sortedPosts.filter((post) => getPostDateKey(post) === dateKey);
+    const dayDate = startOfDay(getPostDate(groupPosts[0]));
+    const tripDay = Math.floor((dayDate.getTime() - earliestDay.getTime()) / 86400000) + 1;
+
+    return {
+      dateKey,
+      tripDay,
+      title: formatDayTitle(dayDate),
+      posts: groupPosts,
+      photos: groupPosts.reduce((sum, post) => sum + post.photos.length, 0)
+    };
+  });
+}
+
+function getTripDays(posts: Post[]) {
+  const dayKeys = new Set(posts.map((post) => getPostDateKey(post)));
+
+  return Math.max(dayKeys.size, 1);
+}
+
+function getPostDateKey(post: Post) {
+  const date = getPostDate(post);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function getPostDate(post: Post) {
+  const date = new Date(post.visitedAtIso ?? "");
+
+  return Number.isNaN(date.getTime()) ? new Date() : date;
+}
+
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function formatDayTitle(date: Date) {
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    weekday: "long"
+  }).format(date);
+}
+
+function formatPostTime(post: Post) {
+  return new Intl.DateTimeFormat("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(getPostDate(post));
+}
+
+function formatRussianPlural(value: number, forms: [string, string, string]) {
+  const absValue = Math.abs(value) % 100;
+  const lastDigit = absValue % 10;
+
+  if (absValue > 10 && absValue < 20) {
+    return forms[2];
+  }
+
+  if (lastDigit > 1 && lastDigit < 5) {
+    return forms[1];
+  }
+
+  if (lastDigit === 1) {
+    return forms[0];
+  }
+
+  return forms[2];
+}
+
+function getPhotoEditKey(src: string, index: number) {
+  return `${src}:${index}`;
+}
+
 type NewPlaceFormValues = {
   name: string;
   category?: string;
@@ -938,59 +1200,82 @@ function NewIdeaModal({ onCreate }: { onCreate: (idea: Idea) => void }) {
 }
 
 function JournalTimeline({
+  isAdmin,
   posts,
   onUpdate
 }: {
+  isAdmin: boolean;
   posts: Post[];
   onUpdate: (post: Post) => void;
 }) {
+  const dayGroups = groupPostsByDay(posts);
+
   return (
-    <Timeline
-      items={posts.map((post) => ({
-        color: post.moodColor,
-        content: (
-          <Card className={styles.entryCard}>
-            <div className={styles.entryHeader}>
-              <div className={styles.entryTitleGroup}>
-                <Text type="secondary">{post.visitedAt}</Text>
-                <Title level={4}>{post.title}</Title>
-              </div>
-              <Space align="start" className={styles.entryActions}>
-                <Tag color={post.moodColor}>{post.mood}</Tag>
-                <EditPostModal post={post} onUpdate={onUpdate} />
-              </Space>
+    <div className={styles.timelineDays}>
+      {dayGroups.map((group) => (
+        <section className={styles.timelineDay} key={group.dateKey}>
+          <div className={styles.dayHeader}>
+            <div>
+              <Text className={styles.cardEyebrow}>День {group.tripDay}</Text>
+              <Title level={4}>{group.title}</Title>
             </div>
-            <Paragraph className={styles.entryBody}>{post.body}</Paragraph>
-            <Image.PreviewGroup>
-              <div className={styles.entryImages}>
-                {post.photos.map((photo, index) => (
-                  <Image
-                    key={`${post.id}-${photo.src}-${index}`}
-                    src={photo.src}
-                    alt={photo.caption}
-                  />
-                ))}
-              </div>
-            </Image.PreviewGroup>
-            <Flex
-              justify="space-between"
-              align="center"
-              className={styles.entryMeta}
-              style={{ paddingTop: 24 }}
-            >
-              <Text type="secondary">
-                <MapPin size={14} /> {post.locationName}
-              </Text>
-              <Space size={6}>
-                {post.tags.map((tag) => (
-                  <Tag key={tag}>{tag}</Tag>
-                ))}
-              </Space>
-            </Flex>
-          </Card>
-        )
-      }))}
-    />
+            <Space size={6} wrap>
+              <Tag>{group.posts.length} {formatRussianPlural(group.posts.length, ["запись", "записи", "записей"])}</Tag>
+              <Tag>{group.photos} фото</Tag>
+            </Space>
+          </div>
+
+          <Timeline
+            items={group.posts.map((post) => ({
+              color: post.moodColor,
+              content: (
+                <Card className={styles.entryCard}>
+                  <div className={styles.entryHeader}>
+                    <div className={styles.entryTitleGroup}>
+                      <Text type="secondary">{formatPostTime(post)}</Text>
+                      <Title level={4}>{post.title}</Title>
+                    </div>
+                    <Space align="start" className={styles.entryActions}>
+                      <Tag color={post.moodColor}>{post.mood}</Tag>
+                      {isAdmin && <EditPostModal post={post} onUpdate={onUpdate} />}
+                    </Space>
+                  </div>
+                  <Paragraph className={styles.entryBody}>{post.body}</Paragraph>
+                  {post.photos.length > 0 && (
+                    <Image.PreviewGroup>
+                      <div className={styles.entryImages}>
+                        {post.photos.map((photo, index) => (
+                          <Image
+                            key={`${post.id}-${photo.src}-${index}`}
+                            src={photo.src}
+                            alt={photo.caption}
+                          />
+                        ))}
+                      </div>
+                    </Image.PreviewGroup>
+                  )}
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    className={styles.entryMeta}
+                    style={{ paddingTop: 24 }}
+                  >
+                    <Text type="secondary">
+                      <MapPin size={14} /> {post.locationName}
+                    </Text>
+                    <Space size={6}>
+                      {post.tags.map((tag) => (
+                        <Tag key={tag}>{tag}</Tag>
+                      ))}
+                    </Space>
+                  </Flex>
+                </Card>
+              )
+            }))}
+          />
+        </section>
+      ))}
+    </div>
   );
 }
 
@@ -1003,6 +1288,7 @@ function EditPostModal({
 }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [removedPhotoKeys, setRemovedPhotoKeys] = useState<string[]>([]);
   const [form] = Form.useForm<NewPostFormValues>();
 
   const uploadProps: UploadProps = {
@@ -1023,17 +1309,22 @@ function EditPostModal({
       tags: post.tags.join(", "),
       photos: []
     });
+    setRemovedPhotoKeys([]);
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+    setRemovedPhotoKeys([]);
     form.resetFields();
   };
 
   const handleSave = async () => {
     const values = await form.validateFields();
     setSaving(true);
+    const keptPhotos = post.photos.filter(
+      (photo, index) => !removedPhotoKeys.includes(getPhotoEditKey(photo.src, index))
+    );
 
     onUpdate({
       ...post,
@@ -1045,7 +1336,7 @@ function EditPostModal({
       visitedAt: formatJournalDate(values.visitedAt),
       visitedAtIso: values.visitedAt.toISOString(),
       tags: buildPostTags(values.tags, values.mood, values.location),
-      photos: [...post.photos, ...(await buildUploadedPhotos(values.photos))]
+      photos: [...keptPhotos, ...(await buildUploadedPhotos(values.photos))]
     });
 
     setSaving(false);
@@ -1109,14 +1400,34 @@ function EditPostModal({
             <div className={styles.existingPhotos}>
               <Text type="secondary">Текущие фото</Text>
               <div className={styles.existingPhotoGrid}>
-                {post.photos.map((photo, index) => (
-                  <Image
-                    key={`${post.id}-${photo.src}-${index}`}
-                    src={photo.src}
-                    alt={photo.caption}
-                    preview={false}
-                  />
-                ))}
+                {post.photos.map((photo, index) => {
+                  const photoKey = getPhotoEditKey(photo.src, index);
+                  const isRemoved = removedPhotoKeys.includes(photoKey);
+
+                  return (
+                    <div
+                      className={styles.existingPhotoItem}
+                      data-removed={isRemoved}
+                      key={`${post.id}-${photo.src}-${index}`}
+                    >
+                      <Image src={photo.src} alt={photo.caption} preview={false} />
+                      <button
+                        aria-label={isRemoved ? "Вернуть фото" : "Удалить фото"}
+                        className={styles.removePhotoButton}
+                        onClick={() =>
+                          setRemovedPhotoKeys((currentKeys) =>
+                            currentKeys.includes(photoKey)
+                              ? currentKeys.filter((key) => key !== photoKey)
+                              : [...currentKeys, photoKey]
+                          )
+                        }
+                        type="button"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -1181,9 +1492,11 @@ function PlacesBoard({ places }: { places: Place[] }) {
 
 function IdeasBoard({
   ideas,
+  isAdmin,
   onToggle
 }: {
   ideas: Idea[];
+  isAdmin: boolean;
   onToggle: (ideaId: string) => void;
 }) {
   return (
@@ -1191,9 +1504,14 @@ function IdeasBoard({
       {ideas.map((idea) => (
         <button
           className={styles.ideaRow}
+          disabled={!isAdmin}
           key={idea.id}
           type="button"
-          onClick={() => onToggle(idea.id)}
+          onClick={() => {
+            if (isAdmin) {
+              onToggle(idea.id);
+            }
+          }}
         >
           <span className={styles.ideaStatus} data-done={idea.status === "done"}>
             <CheckCircle2 size={18} />
@@ -1251,19 +1569,19 @@ function StatsPanel({
           <Statistic title="Фото" value={stats.photos} />
         </Col>
         <Col span={8}>
-          <Statistic title="Мест" value={stats.places} />
+          <Statistic title="Дней" value={stats.days} />
         </Col>
       </Row>
-      <Text type="secondary">Идей выполнено</Text>
-      <Progress percent={stats.ideasProgress} strokeColor="#0f766e" />
     </Card>
   );
 }
 
 function PlacesPanel({
+  isAdmin,
   places,
   onCreate
 }: {
+  isAdmin: boolean;
   places: Place[];
   onCreate: (place: Place) => void;
 }) {
@@ -1276,7 +1594,7 @@ function PlacesPanel({
           Места
         </Space>
       }
-      extra={<NewPlaceModal onCreate={onCreate} />}
+      extra={isAdmin ? <NewPlaceModal onCreate={onCreate} /> : null}
     >
       <div className={styles.panelList}>
         {places.map((place) => (
@@ -1298,10 +1616,12 @@ function PlacesPanel({
 
 function IdeasPanel({
   ideas,
+  isAdmin,
   onCreate,
   onToggle
 }: {
   ideas: Idea[];
+  isAdmin: boolean;
   onCreate: (idea: Idea) => void;
   onToggle: (ideaId: string) => void;
 }) {
@@ -1314,15 +1634,20 @@ function IdeasPanel({
           Идеи
         </Space>
       }
-      extra={<NewIdeaModal onCreate={onCreate} />}
+      extra={isAdmin ? <NewIdeaModal onCreate={onCreate} /> : null}
     >
       <div className={styles.panelList}>
         {ideas.map((idea) => (
           <button
             className={styles.panelItemButton}
+            disabled={!isAdmin}
             key={idea.id}
             type="button"
-            onClick={() => onToggle(idea.id)}
+            onClick={() => {
+              if (isAdmin) {
+                onToggle(idea.id);
+              }
+            }}
           >
             <Text strong>{idea.title}</Text>
             <div className={styles.itemDescription}>

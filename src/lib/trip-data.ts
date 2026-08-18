@@ -2,6 +2,20 @@ import type { Idea, Place, Post, TripStats } from "./types";
 
 export const initialPosts: Post[] = [
   {
+    id: "ab43a8d4-5df8-4f6d-a611-d7894f25f211",
+    seedKey: "moscow-bangkok-flight",
+    title: "Вылетаем в Бангкок: девять часов до Таиланда",
+    body:
+      "Сегодня в 22:25 стартует главный перелет маршрута: Москва -> Бангкок. Впереди около девяти часов в небе, а дальше начнется уже настоящая тайская глава — новые места, жара, еда, море и все заметки, которые будем докидывать по дороге.",
+    mood: "ожидание взлета",
+    moodColor: "cyan",
+    locationName: "Москва, аэропорт",
+    visitedAt: "18 августа, 22:25",
+    visitedAtIso: "2026-08-18T22:25:00+03:00",
+    tags: ["вылет", "бангкок", "тайланд", "самолет"],
+    photos: []
+  },
+  {
     id: "8f9f3e0a-1d95-4e3d-a25d-6b8061f0fa25",
     seedKey: "preflight-charging-work",
     title: "Готовимся к вылету: зарядка, работа и чемоданное настроение",
@@ -148,6 +162,7 @@ export const tripStats: TripStats = {
   posts: initialPosts.length,
   photos: initialPosts.reduce((sum, post) => sum + post.photos.length, 0),
   places: initialPlaces.length,
+  days: new Set(initialPosts.map((post) => post.visitedAtIso?.slice(0, 10) ?? post.visitedAt)).size,
   ideasProgress: 33,
   currentMood: "Дорога началась, отпуск включился"
 };

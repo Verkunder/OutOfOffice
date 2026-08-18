@@ -36,6 +36,7 @@ export type TripStats = {
   posts: number;
   photos: number;
   places: number;
+  days: number;
   ideasProgress: number;
   currentMood: string;
 };
