@@ -1,0 +1,131 @@
+create extension if not exists pgcrypto;
+
+create type public.post_visibility as enum ('private', 'public');
+create type public.idea_status as enum ('todo', 'done');
+
+create table public.posts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  client_seed_key text,
+  title text not null,
+  body text not null,
+  mood text,
+  location_name text,
+  visited_at timestamptz not null default now(),
+  visibility public.post_visibility not null default 'private',
+  created_at timestamptz not null default now()
+);
+
+create unique index posts_user_seed_key_idx
+on public.posts (user_id, client_seed_key)
+where client_seed_key is not null;
+
+create table public.photos (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references public.posts(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  storage_path text not null,
+  caption text,
+  created_at timestamptz not null default now()
+);
+
+create table public.places (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  category text not null,
+  address text,
+  rating numeric(2, 1) check (rating is null or rating between 0 and 5),
+  notes text,
+  lat double precision,
+  lng double precision,
+  created_at timestamptz not null default now()
+);
+
+create table public.ideas (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  title text not null,
+  status public.idea_status not null default 'todo',
+  priority int not null default 2 check (priority between 1 and 3),
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.posts enable row level security;
+alter table public.photos enable row level security;
+alter table public.places enable row level security;
+alter table public.ideas enable row level security;
+
+create policy "Users can read own posts"
+on public.posts for select
+to authenticated
+using ((select auth.uid()) = user_id);
+
+create policy "Users can read public posts"
+on public.posts for select
+to anon, authenticated
+using (visibility = 'public');
+
+create policy "Users can create own posts"
+on public.posts for insert
+to authenticated
+with check ((select auth.uid()) = user_id);
+
+create policy "Users can update own posts"
+on public.posts for update
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+create policy "Users can delete own posts"
+on public.posts for delete
+to authenticated
+using ((select auth.uid()) = user_id);
+
+create policy "Users can manage own photos"
+on public.photos for all
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+create policy "Users can manage own places"
+on public.places for all
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+create policy "Users can manage own ideas"
+on public.ideas for all
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+insert into storage.buckets (id, name, public)
+values ('trip-photos', 'trip-photos', true)
+on conflict (id) do nothing;
+
+create policy "Users can upload trip photos"
+on storage.objects for insert
+to authenticated
+with check (
+  bucket_id = 'trip-photos'
+  and (select auth.uid())::text = (storage.foldername(name))[1]
+);
+
+create policy "Users can update own trip photos"
+on storage.objects for update
+to authenticated
+using (
+  bucket_id = 'trip-photos'
+  and (select auth.uid())::text = (storage.foldername(name))[1]
+)
+with check (
+  bucket_id = 'trip-photos'
+  and (select auth.uid())::text = (storage.foldername(name))[1]
+);
+
+create policy "Users can read trip photos"
+on storage.objects for select
+to anon, authenticated
+using (bucket_id = 'trip-photos');
