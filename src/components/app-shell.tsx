@@ -287,7 +287,7 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
               Дневник отпуска
             </Title>
           </div>
-          <Space className={styles.headerActions}>
+          <div className={styles.headerActions}>
             <Segmented
               options={
                 showWorkInProgress
@@ -319,7 +319,7 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
                 setSyncMessage("Публичный блог");
               }}
             />
-          </Space>
+          </div>
         </Header>
 
         <Content className={styles.content}>
