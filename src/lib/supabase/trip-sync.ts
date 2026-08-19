@@ -444,14 +444,19 @@ function getCloudIdeaId(userId: string, idea: Idea) {
 }
 
 function buildStableUuid(value: string) {
-  let hash = 2166136261;
-  let hex = "";
+  const seeds = [2166136261, 333555777, 1013904223, 2779096485];
+  const hex = seeds
+    .map((seed) => {
+      let hash = seed;
 
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-    hex += (hash >>> 0).toString(16).padStart(8, "0");
-  }
+      for (let index = 0; index < value.length; index += 1) {
+        hash ^= value.charCodeAt(index) + index + seed;
+        hash = Math.imul(hash, 16777619);
+      }
+
+      return (hash >>> 0).toString(16).padStart(8, "0");
+    })
+    .join("");
 
   const normalizedHex = hex.padEnd(32, "0").slice(0, 32).split("");
   normalizedHex[12] = "5";
@@ -470,7 +475,11 @@ async function cleanupLegacySeedPosts(context: CloudContext) {
     "2637cb5a-46f5-4388-8ce9-c7fe24f51d1f",
     "7820addf-7529-4d5b-9c89-bc34b1d8746f",
     "8f9f3e0a-1d95-4e3d-a25d-6b8061f0fa25",
-    "ab43a8d4-5df8-4f6d-a611-d7894f25f211"
+    "ab43a8d4-5df8-4f6d-a611-d7894f25f211",
+    "1c84db3a-ed35-4ca1-b235-650b44e58c44",
+    "0d8790c9-2d8b-4292-93dd-82ab10dbc161",
+    "d93e2c90-235c-4ff9-b4b8-0f9b84c8e008",
+    "47bed2e5-23ce-468d-b8db-55ce247b1585"
   ];
 
   await context.client.from("posts").delete().in("id", legacySeedIds);

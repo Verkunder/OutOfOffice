@@ -90,11 +90,19 @@ const moscowPostId = "2637cb5a-46f5-4388-8ce9-c7fe24f51d1f";
 const roomPostId = "7820addf-7529-4d5b-9c89-bc34b1d8746f";
 const preflightPostId = "8f9f3e0a-1d95-4e3d-a25d-6b8061f0fa25";
 const flightPostId = "ab43a8d4-5df8-4f6d-a611-d7894f25f211";
+const vdnhPostId = "1c84db3a-ed35-4ca1-b235-650b44e58c44";
+const flightStoryPostId = "0d8790c9-2d8b-4292-93dd-82ab10dbc161";
+const thailandRoadPostId = "d93e2c90-235c-4ff9-b4b8-0f9b84c8e008";
+const mayaanaPostId = "47bed2e5-23ce-468d-b8db-55ce247b1585";
 const rostovSeedKey = "rostov-green-drive";
 const moscowSeedKey = "moscow-arrival";
 const roomSeedKey = "technopark-yes-apart";
 const preflightSeedKey = "preflight-charging-work";
 const flightSeedKey = "moscow-bangkok-flight";
+const vdnhSeedKey = "vdnh-before-flight";
+const flightStorySeedKey = "moscow-bangkok-flight-story";
+const thailandRoadSeedKey = "bangkok-to-pattaya-road";
+const mayaanaSeedKey = "mayaana-beach-resort-arrival";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
 const roomPlaceId = "1e8c887e-81d5-4a4d-837c-068d9eb77253";
@@ -603,6 +611,22 @@ function normalizeStarterPosts(posts: Post[], fallbackPosts: Post[]) {
       return { ...basePost, seedKey: flightSeedKey };
     }
 
+    if (post.id === vdnhPostId || inferredSeedKey === vdnhSeedKey) {
+      return { ...basePost, seedKey: vdnhSeedKey };
+    }
+
+    if (post.id === flightStoryPostId || inferredSeedKey === flightStorySeedKey) {
+      return { ...basePost, seedKey: flightStorySeedKey };
+    }
+
+    if (post.id === thailandRoadPostId || inferredSeedKey === thailandRoadSeedKey) {
+      return { ...basePost, seedKey: thailandRoadSeedKey };
+    }
+
+    if (post.id === mayaanaPostId || inferredSeedKey === mayaanaSeedKey) {
+      return { ...basePost, seedKey: mayaanaSeedKey };
+    }
+
     return basePost;
   });
 
@@ -675,6 +699,34 @@ function inferSeedKey(post: Post) {
     return flightSeedKey;
   }
 
+  if (
+    post.id === vdnhPostId ||
+    photoSources.includes("/images/day-2/vdnh-main-gate-portrait.jpeg")
+  ) {
+    return vdnhSeedKey;
+  }
+
+  if (
+    post.id === flightStoryPostId ||
+    photoSources.includes("/images/day-2/night-flight-city-lights.jpeg")
+  ) {
+    return flightStorySeedKey;
+  }
+
+  if (
+    post.id === thailandRoadPostId ||
+    photoSources.includes("/images/day-2/pattaya-road-sign.jpeg")
+  ) {
+    return thailandRoadSeedKey;
+  }
+
+  if (
+    post.id === mayaanaPostId ||
+    photoSources.includes("/images/day-2/mayaana-welcome-drinks.jpeg")
+  ) {
+    return mayaanaSeedKey;
+  }
+
   if (photoSources.includes("/images/day-1/green-drive.jpg")) {
     return rostovSeedKey;
   }
@@ -722,6 +774,7 @@ function Hero({ posts }: { posts: Post[] }) {
   const tripDays = getTripDays(posts);
   const latestPost = posts[0];
   const flightPost = posts.find((post) => (post.seedKey ?? inferSeedKey(post)) === flightSeedKey);
+  const mayaanaPost = posts.find((post) => (post.seedKey ?? inferSeedKey(post)) === mayaanaSeedKey);
 
   return (
     <section className={styles.hero}>
@@ -742,9 +795,35 @@ function Hero({ posts }: { posts: Post[] }) {
             ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
             : "Ночная зарядка, дорога, московские виды и подготовка к вылету собираются в живой дневник."}
         </Paragraph>
-        {flightPost && <FlightPlanCard />}
+        {mayaanaPost ? <CurrentStayCard /> : flightPost && <FlightPlanCard />}
       </div>
     </section>
+  );
+}
+
+function CurrentStayCard() {
+  return (
+    <div className={styles.flightPlan}>
+      <span className={styles.flightIcon}>
+        <MapPin size={18} />
+      </span>
+      <div>
+        <Text className={styles.flightLabel}>Текущая точка</Text>
+        <Text className={styles.flightRoute}>Mayaana Beach Resort Pattaya</Text>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Дата</Text>
+        <strong>19 авг</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Город</Text>
+        <strong>Pattaya</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Ориентир</Text>
+        <strong>Sanctuary of Truth</strong>
+      </div>
+    </div>
   );
 }
 
