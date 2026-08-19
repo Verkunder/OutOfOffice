@@ -94,6 +94,7 @@ const vdnhPostId = "1c84db3a-ed35-4ca1-b235-650b44e58c44";
 const flightStoryPostId = "0d8790c9-2d8b-4292-93dd-82ab10dbc161";
 const thailandRoadPostId = "d93e2c90-235c-4ff9-b4b8-0f9b84c8e008";
 const mayaanaPostId = "47bed2e5-23ce-468d-b8db-55ce247b1585";
+const pattayaNightPostId = "f8f72ed1-1c48-4c88-a6dc-2a8d5722847a";
 const rostovSeedKey = "rostov-green-drive";
 const moscowSeedKey = "moscow-arrival";
 const roomSeedKey = "technopark-yes-apart";
@@ -103,6 +104,7 @@ const vdnhSeedKey = "vdnh-before-flight";
 const flightStorySeedKey = "moscow-bangkok-flight-story";
 const thailandRoadSeedKey = "bangkok-to-pattaya-road";
 const mayaanaSeedKey = "mayaana-beach-resort-arrival";
+const pattayaNightSeedKey = "pattaya-night-food-foggy-sanctuary";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
 const roomPlaceId = "1e8c887e-81d5-4a4d-837c-068d9eb77253";
@@ -262,9 +264,7 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
     <Layout>
       <Sider breakpoint="lg" collapsedWidth="0" width={248} className={styles.sider}>
         <div className={styles.brand}>
-          <Avatar size={42} className={styles.brandMark}>
-            OO
-          </Avatar>
+          <span className={styles.brandMark} aria-label="Out Of Office" role="img" />
           <div>
             <Text className={styles.brandTitle}>Out Of Office</Text>
             <Text className={styles.brandSubline}>Pattaya journal</Text>
@@ -290,10 +290,13 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
       <Layout>
         <Header className={styles.header}>
           <div className={styles.headerTitleBlock}>
-            <Text className={styles.kicker}>Thailand · Pattaya</Text>
-            <Title level={2} className={styles.pageTitle}>
-              Дневник отпуска
-            </Title>
+            <span className={styles.headerMark} aria-hidden="true" />
+            <div>
+              <Text className={styles.kicker}>Thailand · Pattaya</Text>
+              <Title level={2} className={styles.pageTitle}>
+                Дневник отпуска
+              </Title>
+            </div>
           </div>
           <div className={styles.headerActions}>
             <Segmented
@@ -340,7 +343,7 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
                     <Card className={styles.sectionCard}>
                       <SectionHeader
                         title="Таймлайн"
-                        subtitle="Хронология первого дня, чтобы потом легко собрать историю поездки."
+                        subtitle="Живая хронология маршрута: дорога, перелет, Паттайя и новые главы по мере поездки."
                       />
                       <JournalTimeline
                         isAdmin={isAdmin}
@@ -627,6 +630,10 @@ function normalizeStarterPosts(posts: Post[], fallbackPosts: Post[]) {
       return { ...basePost, seedKey: mayaanaSeedKey };
     }
 
+    if (post.id === pattayaNightPostId || inferredSeedKey === pattayaNightSeedKey) {
+      return { ...basePost, seedKey: pattayaNightSeedKey };
+    }
+
     return basePost;
   });
 
@@ -727,6 +734,13 @@ function inferSeedKey(post: Post) {
     return mayaanaSeedKey;
   }
 
+  if (
+    post.id === pattayaNightPostId ||
+    photoSources.includes("/images/day-2/sanctuary-of-truth-fog-night.jpeg")
+  ) {
+    return pattayaNightSeedKey;
+  }
+
   if (photoSources.includes("/images/day-1/green-drive.jpg")) {
     return rostovSeedKey;
   }
@@ -775,29 +789,72 @@ function Hero({ posts }: { posts: Post[] }) {
   const latestPost = posts[0];
   const flightPost = posts.find((post) => (post.seedKey ?? inferSeedKey(post)) === flightSeedKey);
   const mayaanaPost = posts.find((post) => (post.seedKey ?? inferSeedKey(post)) === mayaanaSeedKey);
+  const pattayaNightPost = posts.find(
+    (post) => (post.seedKey ?? inferSeedKey(post)) === pattayaNightSeedKey
+  );
+  const heroImage =
+    pattayaNightPost?.photos.at(-1)?.src ??
+    mayaanaPost?.photos.find((photo) => photo.src.includes("sanctuary-of-truth"))?.src ??
+    "/images/day-1/road-to-moscow.jpg";
 
   return (
     <section className={styles.hero}>
       <Image
-        src="/images/day-1/road-to-moscow.jpg"
-        alt="Road to Moscow under cloudy sky"
+        src={heroImage}
+        alt="Туманный вид на Храм Истины в Паттайе"
         preview={false}
         className={styles.heroImage}
       />
       <div className={styles.heroOverlay}>
         <Tag color="green">
           {tripDays} {formatRussianPlural(tripDays, ["день", "дня", "дней"])} в пути · Ростов →
-          Москва → вылет
+          Москва → Бангкок → Паттайя
         </Tag>
-        <Title level={1}>Маршрут набирает главы</Title>
+        <Title level={1}>
+          {pattayaNightPost ? "Первые сутки в Паттайе" : "Маршрут набирает главы"}
+        </Title>
         <Paragraph>
-          {latestPost
-            ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
+          {pattayaNightPost
+            ? "Долетели, добрались до отеля и уже поймали первый вечер: еда, влажный воздух и Храм Истины в тумане."
+            : latestPost
+              ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
             : "Ночная зарядка, дорога, московские виды и подготовка к вылету собираются в живой дневник."}
         </Paragraph>
-        {mayaanaPost ? <CurrentStayCard /> : flightPost && <FlightPlanCard />}
+        {pattayaNightPost ? (
+          <CurrentHighlightCard />
+        ) : mayaanaPost ? (
+          <CurrentStayCard />
+        ) : (
+          flightPost && <FlightPlanCard />
+        )}
       </div>
     </section>
+  );
+}
+
+function CurrentHighlightCard() {
+  return (
+    <div className={styles.flightPlan}>
+      <span className={styles.flightIcon}>
+        <MapPin size={18} />
+      </span>
+      <div>
+        <Text className={styles.flightLabel}>Последняя глава</Text>
+        <Text className={styles.flightRoute}>Ночная Паттайя</Text>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Дата</Text>
+        <strong>19 авг</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Маршрут</Text>
+        <strong>{"отель -> еда"}</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Кадр</Text>
+        <strong>Храм Истины</strong>
+      </div>
+    </div>
   );
 }
 

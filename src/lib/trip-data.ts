@@ -2,6 +2,41 @@ import type { Idea, Place, Post, TripStats } from "./types";
 
 export const initialPosts: Post[] = [
   {
+    id: "f8f72ed1-1c48-4c88-a6dc-2a8d5722847a",
+    seedKey: "pattaya-night-food-foggy-sanctuary",
+    title: "Ночная вылазка за едой и Храм Истины в тумане",
+    body:
+      "После перелета и дороги организм попросил простого: выйти ночью за едой и хоть немного почувствовать район вокруг отеля. В итоге получилась первая бытовая Паттайя: вывески на русском и тайском, заказ на кассе, картошка, холодные напитки и уличный алтарь по дороге. А потом с балкона проявился Храм Истины в тумане — почти призрак за деревьями, очень тихий и странно красивый финал первого тайского дня.",
+    mood: "ночная Паттайя",
+    moodColor: "purple",
+    locationName: "North Pattaya, рядом с Mayaana Beach Resort",
+    visitedAt: "19 августа, 22:43",
+    visitedAtIso: "2026-08-19T22:43:00+07:00",
+    tags: ["паттайя", "еда", "ночь", "храм истины"],
+    photos: [
+      {
+        src: "/images/day-2/pattaya-night-food-teremok.jpeg",
+        caption: "Ночная улица и кафе напротив"
+      },
+      {
+        src: "/images/day-2/pattaya-night-food-order.jpeg",
+        caption: "Первый поздний заказ после дороги"
+      },
+      {
+        src: "/images/day-2/pattaya-night-mcdonalds.jpeg",
+        caption: "Простая еда, которая спасает после перелета"
+      },
+      {
+        src: "/images/day-2/pattaya-night-shrine.jpeg",
+        caption: "Уличный алтарь по дороге обратно"
+      },
+      {
+        src: "/images/day-2/sanctuary-of-truth-fog-night.jpeg",
+        caption: "Храм Истины в тумане с балкона"
+      }
+    ]
+  },
+  {
     id: "47bed2e5-23ce-468d-b8db-55ce247b1585",
     seedKey: "mayaana-beach-resort-arrival",
     title: "Мы в Таиланде: Mayaana Beach Resort Pattaya",

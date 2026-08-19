@@ -6,7 +6,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Out Of Office",
-  description: "A Pattaya travel journal with photos, places, ideas, and emotions."
+  description: "A Pattaya travel journal with photos, places, ideas, and emotions.",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg"
+  }
 };
 
 export default function RootLayout({

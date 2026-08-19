@@ -16,9 +16,13 @@
 }
 
 .brandMark {
-  color: #0e6f68;
-  background: #e7f4f0;
-  font-weight: 800;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  background: url("/brand/thai-mark.svg") center / cover no-repeat;
+  border: 1px solid #d9e4d8;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgb(14 111 104 / 10%);
 }
 
 .brandTitle,
@@ -52,9 +56,19 @@
 
 .headerTitleBlock {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-items: center;
   min-width: 320px;
+  gap: 12px;
+}
+
+.headerMark {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  background: url("/brand/thai-mark.svg") center / cover no-repeat;
+  border: 1px solid #d9e4d8;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgb(14 111 104 / 10%);
 }
 
 .kicker {
@@ -136,7 +150,7 @@
   width: 100%;
   height: 360px !important;
   object-fit: cover;
-  object-position: center 44%;
+  object-position: 56% 48%;
 }
 
 .heroOverlay {
@@ -680,6 +694,13 @@
 
   .headerTitleBlock {
     min-width: 0;
+    gap: 10px;
+  }
+
+  .headerMark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
   }
 
   .kicker {
@@ -759,7 +780,7 @@
 
   .heroImage {
     height: 100% !important;
-    object-position: center top;
+    object-position: 60% center;
   }
 
   .heroOverlay {
