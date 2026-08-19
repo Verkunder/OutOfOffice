@@ -1121,10 +1121,10 @@ function formatDayTitle(date: Date) {
   }).format(date);
 }
 
-function formatPostTime(post: Post) {
+function formatPostDate(post: Post) {
   return new Intl.DateTimeFormat("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit"
+    day: "numeric",
+    month: "long"
   }).format(getPostDate(post));
 }
 
@@ -1311,7 +1311,7 @@ function JournalTimeline({
                 <Card className={styles.entryCard}>
                   <div className={styles.entryHeader}>
                     <div className={styles.entryTitleGroup}>
-                      <Text type="secondary">{formatPostTime(post)}</Text>
+                      <Text type="secondary">{formatPostDate(post)}</Text>
                       <Title level={4}>{post.title}</Title>
                     </div>
                     <Space align="start" className={styles.entryActions}>

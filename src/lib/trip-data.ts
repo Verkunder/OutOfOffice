@@ -15,14 +15,6 @@ export const initialPosts: Post[] = [
     tags: ["тайланд", "паттайя", "отель", "mayaana"],
     photos: [
       {
-        src: "/images/day-2/mayaana-arrival-selfie.jpeg",
-        caption: "Первые минуты в отеле"
-      },
-      {
-        src: "/images/day-2/mayaana-luggage-selfie.jpeg",
-        caption: "Чемоданы доехали вместе с нами"
-      },
-      {
         src: "/images/day-2/mayaana-welcome-drinks.jpeg",
         caption: "Welcome drinks после дороги"
       },
@@ -115,7 +107,7 @@ export const initialPosts: Post[] = [
     seedKey: "vdnh-before-flight",
     title: "ВДНХ перед вылетом: последняя московская прогулка",
     body:
-      "До самолета оставалось еще немного времени, и мы успели прогуляться по ВДНХ. Пасмурное небо, арки, павильоны, фонтан, золотые детали и спокойная московская пауза перед ночным перелетом. Хороший способ закрыть московскую часть маршрута: без суеты, но уже с билетом в Таиланд в голове.",
+      "Перед прогулкой выбрались из московского отеля с рюкзаками и чемоданами, а потом успели пройтись по ВДНХ. Пасмурное небо, арки, павильоны, фонтан, золотые детали и спокойная московская пауза перед ночным перелетом. Хороший способ закрыть московскую часть маршрута: без суеты, но уже с билетом в Таиланд в голове.",
     mood: "перед большим рывком",
     moodColor: "cyan",
     locationName: "Москва, ВДНХ",
@@ -123,6 +115,14 @@ export const initialPosts: Post[] = [
     visitedAtIso: "2026-08-18T17:20:00+03:00",
     tags: ["москва", "вднх", "прогулка", "перед вылетом"],
     photos: [
+      {
+        src: "/images/day-2/moscow-before-vdnh-selfie.jpeg",
+        caption: "Собираемся на прогулку по Москве"
+      },
+      {
+        src: "/images/day-2/moscow-before-vdnh-luggage.jpeg",
+        caption: "Перед ВДНХ и аэропортом"
+      },
       {
         src: "/images/day-2/vdnh-main-gate-portrait.jpeg",
         caption: "Главный вход ВДНХ"
