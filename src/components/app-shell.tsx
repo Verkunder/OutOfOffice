@@ -95,6 +95,7 @@ const flightStoryPostId = "0d8790c9-2d8b-4292-93dd-82ab10dbc161";
 const thailandRoadPostId = "d93e2c90-235c-4ff9-b4b8-0f9b84c8e008";
 const mayaanaPostId = "47bed2e5-23ce-468d-b8db-55ce247b1585";
 const pattayaNightPostId = "f8f72ed1-1c48-4c88-a6dc-2a8d5722847a";
+const firstSeaPostId = "b3f58dd2-7efe-48f4-b2aa-4b2c1c77f940";
 const rostovSeedKey = "rostov-green-drive";
 const moscowSeedKey = "moscow-arrival";
 const roomSeedKey = "technopark-yes-apart";
@@ -105,6 +106,7 @@ const flightStorySeedKey = "moscow-bangkok-flight-story";
 const thailandRoadSeedKey = "bangkok-to-pattaya-road";
 const mayaanaSeedKey = "mayaana-beach-resort-arrival";
 const pattayaNightSeedKey = "pattaya-night-food-foggy-sanctuary";
+const firstSeaSeedKey = "first-sea-breakfast-ganesha";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
 const roomPlaceId = "1e8c887e-81d5-4a4d-837c-068d9eb77253";
@@ -634,6 +636,10 @@ function normalizeStarterPosts(posts: Post[], fallbackPosts: Post[]) {
       return { ...basePost, seedKey: pattayaNightSeedKey };
     }
 
+    if (post.id === firstSeaPostId || inferredSeedKey === firstSeaSeedKey) {
+      return { ...basePost, seedKey: firstSeaSeedKey };
+    }
+
     return basePost;
   });
 
@@ -741,6 +747,13 @@ function inferSeedKey(post: Post) {
     return pattayaNightSeedKey;
   }
 
+  if (
+    post.id === firstSeaPostId ||
+    photoSources.includes("/images/day-3/first-sea-couple-selfie.jpeg")
+  ) {
+    return firstSeaSeedKey;
+  }
+
   if (photoSources.includes("/images/day-1/green-drive.jpg")) {
     return rostovSeedKey;
   }
@@ -792,7 +805,11 @@ function Hero({ posts }: { posts: Post[] }) {
   const pattayaNightPost = posts.find(
     (post) => (post.seedKey ?? inferSeedKey(post)) === pattayaNightSeedKey
   );
+  const firstSeaPost = posts.find(
+    (post) => (post.seedKey ?? inferSeedKey(post)) === firstSeaSeedKey
+  );
   const heroImage =
+    firstSeaPost?.photos.find((photo) => photo.src.includes("first-sea-couple"))?.src ??
     pattayaNightPost?.photos.at(-1)?.src ??
     mayaanaPost?.photos.find((photo) => photo.src.includes("sanctuary-of-truth"))?.src ??
     "/images/day-1/road-to-moscow.jpg";
@@ -801,7 +818,7 @@ function Hero({ posts }: { posts: Post[] }) {
     <section className={styles.hero}>
       <Image
         src={heroImage}
-        alt="Туманный вид на Храм Истины в Паттайе"
+        alt="Утренний выход к морю в Паттайе"
         preview={false}
         className={styles.heroImage}
       />
@@ -811,16 +828,24 @@ function Hero({ posts }: { posts: Post[] }) {
           Москва → Бангкок → Паттайя
         </Tag>
         <Title level={1}>
-          {pattayaNightPost ? "Первые сутки в Паттайе" : "Маршрут набирает главы"}
+          {firstSeaPost
+            ? "Первое утро у моря"
+            : pattayaNightPost
+              ? "Первые сутки в Паттайе"
+              : "Маршрут набирает главы"}
         </Title>
         <Paragraph>
-          {pattayaNightPost
+          {firstSeaPost
+            ? "Первый выход к воде, завтрак с фруктами и Ганеша, которого заметили уже по дороге от стола к морю."
+            : pattayaNightPost
             ? "Долетели, добрались до отеля и уже поймали первый вечер: еда, влажный воздух и Храм Истины в тумане."
             : latestPost
               ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
             : "Ночная зарядка, дорога, московские виды и подготовка к вылету собираются в живой дневник."}
         </Paragraph>
-        {pattayaNightPost ? (
+        {firstSeaPost ? (
+          <MorningSeaCard />
+        ) : pattayaNightPost ? (
           <CurrentHighlightCard />
         ) : mayaanaPost ? (
           <CurrentStayCard />
@@ -829,6 +854,32 @@ function Hero({ posts }: { posts: Post[] }) {
         )}
       </div>
     </section>
+  );
+}
+
+function MorningSeaCard() {
+  return (
+    <div className={styles.flightPlan}>
+      <span className={styles.flightIcon}>
+        <MapPin size={18} />
+      </span>
+      <div>
+        <Text className={styles.flightLabel}>Свежая глава</Text>
+        <Text className={styles.flightRoute}>{"Завтрак -> море"}</Text>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Дата</Text>
+        <strong>20 авг</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Настроение</Text>
+        <strong>утро у воды</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Деталь</Text>
+        <strong>Ганеша</strong>
+      </div>
+    </div>
   );
 }
 

@@ -2,6 +2,57 @@ import type { Idea, Place, Post, TripStats } from "./types";
 
 export const initialPosts: Post[] = [
   {
+    id: "b3f58dd2-7efe-48f4-b2aa-4b2c1c77f940",
+    seedKey: "first-sea-breakfast-ganesha",
+    title: "Первый поход к морю, завтрак и Ганеша",
+    body:
+      "Утро началось с первого нормального выхода к морю. Паттайя встретила не открыткой с лазурной водой, а живым ветром, волнами, мокрыми камнями и серым небом — зато сразу стало понятно: мы правда у моря. После прогулки налупились фруктов на завтраке, по пути заметили бананы прямо в зелени и статую Ганеши у отеля. Получилась спокойная первая тайская утренняя глава: море, фрукты, немного ветра и ощущение, что организм наконец догоняет отпуск.",
+    mood: "утро у моря",
+    moodColor: "cyan",
+    locationName: "North Pattaya, рядом с Mayaana Beach Resort",
+    visitedAt: "20 августа, 11:20",
+    visitedAtIso: "2026-08-20T11:20:00+07:00",
+    tags: ["паттайя", "море", "завтрак", "фрукты", "ганеша"],
+    photos: [
+      {
+        src: "/images/day-3/first-sea-island-view.jpeg",
+        caption: "Первый вид на море и острова"
+      },
+      {
+        src: "/images/day-3/first-sea-pattaya-skyline.jpeg",
+        caption: "Паттайя за волнами"
+      },
+      {
+        src: "/images/day-3/first-sea-couple-waves.jpeg",
+        caption: "Первый выход к воде"
+      },
+      {
+        src: "/images/day-3/first-sea-couple-selfie.jpeg",
+        caption: "Утро на берегу"
+      },
+      {
+        src: "/images/day-3/first-sea-shore-portrait.jpeg",
+        caption: "Волны прямо у ног"
+      },
+      {
+        src: "/images/day-3/first-sea-shore-standing.jpeg",
+        caption: "Берег рядом с отелем"
+      },
+      {
+        src: "/images/day-3/breakfast-bananas.jpeg",
+        caption: "Бананы в зелени по пути с завтрака"
+      },
+      {
+        src: "/images/day-3/breakfast-sea-garden-view.jpeg",
+        caption: "Зелень, море и пасмурное утро"
+      },
+      {
+        src: "/images/day-3/breakfast-ganesha-statue.jpeg",
+        caption: "Статуя Ганеши, которую заметили на завтраке"
+      }
+    ]
+  },
+  {
     id: "f8f72ed1-1c48-4c88-a6dc-2a8d5722847a",
     seedKey: "pattaya-night-food-foggy-sanctuary",
     title: "Ночная вылазка за едой и Храм Истины в тумане",
@@ -372,5 +423,5 @@ export const tripStats: TripStats = {
   places: initialPlaces.length,
   days: new Set(initialPosts.map((post) => post.visitedAtIso?.slice(0, 10) ?? post.visitedAt)).size,
   ideasProgress: 33,
-  currentMood: "Таиланд начался: первые часы в Паттайе"
+  currentMood: "Первое утро у моря: волны, фрукты и Ганеша"
 };
