@@ -2,6 +2,49 @@ import type { Idea, Place, Post, TripStats } from "./types";
 
 export const initialPosts: Post[] = [
   {
+    id: "fa4ef914-11ee-4065-88fe-239a583cc46b",
+    seedKey: "pool-sea-pina-colada-chill",
+    title: "Чилл у бассейна, пина колада и море",
+    body:
+      "Сегодня без подвигов и маршрутов: просто нормальный отпускной день. Устроились у бассейна, взяли пина коладу, поймали солнце, потом выбрались к морю и зависли на лежаках с видом на воду. Даже местный геккон отметился в дневнике, как маленький знак, что мы уже в тайском режиме: меньше спешки, больше воздуха, воды и простого кайфа.",
+    mood: "чилл",
+    moodColor: "gold",
+    locationName: "Mayaana Beach Resort Pattaya и пляж рядом",
+    visitedAt: "21 августа",
+    visitedAtIso: "2026-08-21T15:17:00+07:00",
+    tags: ["паттайя", "бассейн", "море", "пина колада", "чилл"],
+    photos: [
+      {
+        src: "/images/day-4/pool-chill-peace.jpeg",
+        caption: "Бассейн, вода и полный режим отдыха"
+      },
+      {
+        src: "/images/day-4/pina-colada-pool.jpeg",
+        caption: "Пина колада у бассейна"
+      },
+      {
+        src: "/images/day-4/sunny-gecko.jpeg",
+        caption: "Местный геккон на солнечной стене"
+      },
+      {
+        src: "/images/day-4/leo-beer-sea-view.jpeg",
+        caption: "Холодный Leo с видом на море"
+      },
+      {
+        src: "/images/day-4/beach-loungers-sea.jpeg",
+        caption: "Лежаки, песок и спокойное море"
+      },
+      {
+        src: "/images/day-4/pool-lounger-view.jpeg",
+        caption: "Ленивая пауза у бассейна"
+      },
+      {
+        src: "/images/day-4/beach-leo-chill-cropped.jpeg",
+        caption: "Пляжный чилл без лишнего в кадре"
+      }
+    ]
+  },
+  {
     id: "b3f58dd2-7efe-48f4-b2aa-4b2c1c77f940",
     seedKey: "first-sea-breakfast-ganesha",
     title: "Первый поход к морю, завтрак и Ганеша",
@@ -423,5 +466,5 @@ export const tripStats: TripStats = {
   places: initialPlaces.length,
   days: new Set(initialPosts.map((post) => post.visitedAtIso?.slice(0, 10) ?? post.visitedAt)).size,
   ideasProgress: 33,
-  currentMood: "Первое утро у моря: волны, фрукты и Ганеша"
+  currentMood: "Чилл у бассейна, пина колада и море"
 };
