@@ -363,9 +363,13 @@ function mapCloudPost(post: CloudPostWithPhotos): Post {
 }
 
 function mapCloudPhoto(photo: CloudPhoto): Photo {
+  const cleanSource = photo.storage_path.split("?")[0].toLowerCase();
+  const type = /\.(mov|mp4|m4v|webm|ogg)$/.test(cleanSource) ? "video" : "image";
+
   return {
     src: photo.storage_path,
-    caption: photo.caption ?? "Фото"
+    caption: photo.caption ?? (type === "video" ? "Видео" : "Фото"),
+    type
   };
 }
 
@@ -482,7 +486,8 @@ async function cleanupLegacySeedPosts(context: CloudContext) {
     "47bed2e5-23ce-468d-b8db-55ce247b1585",
     "f8f72ed1-1c48-4c88-a6dc-2a8d5722847a",
     "b3f58dd2-7efe-48f4-b2aa-4b2c1c77f940",
-    "fa4ef914-11ee-4065-88fe-239a583cc46b"
+    "fa4ef914-11ee-4065-88fe-239a583cc46b",
+    "9e09ea09-83c5-4eb5-a480-440723b8c5ae"
   ];
 
   await context.client.from("posts").delete().in("id", legacySeedIds);

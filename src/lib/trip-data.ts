@@ -2,6 +2,46 @@ import type { Idea, Place, Post, TripStats } from "./types";
 
 export const initialPosts: Post[] = [
   {
+    id: "9e09ea09-83c5-4eb5-a480-440723b8c5ae",
+    seedKey: "local-restaurant-market-evening",
+    title: "Местный ресторан, рынок и вечерняя Паттайя",
+    body:
+      "Сегодня выбрались в местный ресторан и на рынок. Получился очень странный, но классный тайский микс: узбекская и русская кухня посреди Паттайи, меню с борщом, мантами и пирожками, гирлянды, вечерний рынок между высотками и потом спокойный ужин у Blue Siam. Такие бытовые вылазки хорошо заземляют поездку: вроде ничего грандиозного, но именно из них потом и собирается настоящий отпуск.",
+    mood: "вечерний рынок",
+    moodColor: "magenta",
+    locationName: "North Pattaya, рынок и рестораны рядом с отелем",
+    visitedAt: "22 августа",
+    visitedAtIso: "2026-08-22T19:43:00+07:00",
+    tags: ["паттайя", "рынок", "ресторан", "еда", "вечер"],
+    photos: [
+      {
+        src: "/images/day-5/chaykhana-restaurant-sign.jpeg",
+        caption: "Chaykhana N1 и неожиданный русский след в Паттайе"
+      },
+      {
+        src: "/images/day-5/market-restaurant-portrait.jpeg",
+        caption: "Вечер за зеленым столом"
+      },
+      {
+        src: "/images/day-5/russian-menu-pattaya.jpeg",
+        caption: "Меню с борщом, мантами и пирожками"
+      },
+      {
+        src: "/images/day-5/evening-market-lights.jpeg",
+        caption: "Рынок загорается огнями между высотками"
+      },
+      {
+        src: "/images/day-5/blue-siam-dinner.jpeg",
+        caption: "Ужин у Blue Siam"
+      },
+      {
+        src: "/videos/day-5/pattaya-market-walk.mov",
+        caption: "Видео с вечерней прогулки по рынку",
+        type: "video"
+      }
+    ]
+  },
+  {
     id: "fa4ef914-11ee-4065-88fe-239a583cc46b",
     seedKey: "pool-sea-pina-colada-chill",
     title: "Чилл у бассейна, пина колада и море",
@@ -466,5 +506,5 @@ export const tripStats: TripStats = {
   places: initialPlaces.length,
   days: new Set(initialPosts.map((post) => post.visitedAtIso?.slice(0, 10) ?? post.visitedAt)).size,
   ideasProgress: 33,
-  currentMood: "Чилл у бассейна, пина колада и море"
+  currentMood: "Местный ресторан, рынок и вечерняя Паттайя"
 };

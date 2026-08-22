@@ -1,6 +1,7 @@
 export type Photo = {
   src: string;
   caption: string;
+  type?: "image" | "video";
 };
 
 export type Post = {

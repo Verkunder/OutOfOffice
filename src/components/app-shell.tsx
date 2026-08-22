@@ -98,6 +98,7 @@ const mayaanaPostId = "47bed2e5-23ce-468d-b8db-55ce247b1585";
 const pattayaNightPostId = "f8f72ed1-1c48-4c88-a6dc-2a8d5722847a";
 const firstSeaPostId = "b3f58dd2-7efe-48f4-b2aa-4b2c1c77f940";
 const poolChillPostId = "fa4ef914-11ee-4065-88fe-239a583cc46b";
+const marketEveningPostId = "9e09ea09-83c5-4eb5-a480-440723b8c5ae";
 const rostovSeedKey = "rostov-green-drive";
 const moscowSeedKey = "moscow-arrival";
 const roomSeedKey = "technopark-yes-apart";
@@ -110,6 +111,7 @@ const mayaanaSeedKey = "mayaana-beach-resort-arrival";
 const pattayaNightSeedKey = "pattaya-night-food-foggy-sanctuary";
 const firstSeaSeedKey = "first-sea-breakfast-ganesha";
 const poolChillSeedKey = "pool-sea-pina-colada-chill";
+const marketEveningSeedKey = "local-restaurant-market-evening";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
 const roomPlaceId = "1e8c887e-81d5-4a4d-837c-068d9eb77253";
@@ -647,6 +649,10 @@ function normalizeStarterPosts(posts: Post[], fallbackPosts: Post[]) {
       return { ...basePost, seedKey: poolChillSeedKey };
     }
 
+    if (post.id === marketEveningPostId || inferredSeedKey === marketEveningSeedKey) {
+      return { ...basePost, seedKey: marketEveningSeedKey };
+    }
+
     return basePost;
   });
 
@@ -768,6 +774,13 @@ function inferSeedKey(post: Post) {
     return poolChillSeedKey;
   }
 
+  if (
+    post.id === marketEveningPostId ||
+    photoSources.includes("/videos/day-5/pattaya-market-walk.mov")
+  ) {
+    return marketEveningSeedKey;
+  }
+
   if (photoSources.includes("/images/day-1/green-drive.jpg")) {
     return rostovSeedKey;
   }
@@ -799,6 +812,29 @@ function dedupePhotos(photos: Post["photos"]) {
   });
 }
 
+function isVideoMedia(photo: Post["photos"][number]) {
+  const cleanSource = photo.src.split("?")[0].toLowerCase();
+
+  return photo.type === "video" || /\.(mov|mp4|m4v|webm|ogg)$/.test(cleanSource);
+}
+
+function MediaPreview({ photo, preview = true }: { photo: Post["photos"][number]; preview?: boolean }) {
+  if (isVideoMedia(photo)) {
+    return (
+      <video
+        className={styles.mediaVideo}
+        controls
+        playsInline
+        preload="metadata"
+        src={photo.src}
+        title={photo.caption}
+      />
+    );
+  }
+
+  return <Image src={photo.src} alt={photo.caption} preview={preview} />;
+}
+
 function formatSyncError(error: string) {
   if (error.includes("Anonymous sign-ins are disabled")) {
     return "Включи Anonymous Auth в Supabase";
@@ -825,7 +861,11 @@ function Hero({ posts }: { posts: Post[] }) {
   const poolChillPost = posts.find(
     (post) => (post.seedKey ?? inferSeedKey(post)) === poolChillSeedKey
   );
+  const marketEveningPost = posts.find(
+    (post) => (post.seedKey ?? inferSeedKey(post)) === marketEveningSeedKey
+  );
   const heroImage =
+    marketEveningPost?.photos.find((photo) => photo.src.includes("evening-market"))?.src ??
     poolChillPost?.photos.find((photo) => photo.src.includes("pina-colada"))?.src ??
     firstSeaPost?.photos.find((photo) => photo.src.includes("first-sea-couple"))?.src ??
     pattayaNightPost?.photos.at(-1)?.src ??
@@ -836,7 +876,7 @@ function Hero({ posts }: { posts: Post[] }) {
     <section className={styles.hero}>
       <Image
         src={heroImage}
-        alt="Пина колада у бассейна в Паттайе"
+        alt="Вечерний рынок и рестораны в Паттайе"
         preview={false}
         className={styles.heroImage}
       />
@@ -846,7 +886,9 @@ function Hero({ posts }: { posts: Post[] }) {
           Москва → Бангкок → Паттайя
         </Tag>
         <Title level={1}>
-          {poolChillPost
+          {marketEveningPost
+            ? "Вечерний рынок"
+            : poolChillPost
             ? "Чилл у бассейна"
             : firstSeaPost
             ? "Первое утро у моря"
@@ -855,7 +897,9 @@ function Hero({ posts }: { posts: Post[] }) {
               : "Маршрут набирает главы"}
         </Title>
         <Paragraph>
-          {poolChillPost
+          {marketEveningPost
+            ? "Местный ресторан, меню с русской кухней, рынок в огнях и короткое видео с вечерней прогулки по району."
+            : poolChillPost
             ? "Сегодня в дневнике простой отпуск: бассейн, пина колада, море, лежаки и ровно столько движения, сколько хочется."
             : firstSeaPost
             ? "Первый выход к воде, завтрак с фруктами и Ганеша, которого заметили уже по дороге от стола к морю."
@@ -865,7 +909,9 @@ function Hero({ posts }: { posts: Post[] }) {
               ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
             : "Ночная зарядка, дорога, московские виды и подготовка к вылету собираются в живой дневник."}
         </Paragraph>
-        {poolChillPost ? (
+        {marketEveningPost ? (
+          <MarketEveningCard />
+        ) : poolChillPost ? (
           <PoolChillCard />
         ) : firstSeaPost ? (
           <MorningSeaCard />
@@ -878,6 +924,32 @@ function Hero({ posts }: { posts: Post[] }) {
         )}
       </div>
     </section>
+  );
+}
+
+function MarketEveningCard() {
+  return (
+    <div className={styles.flightPlan}>
+      <span className={styles.flightIcon}>
+        <MapPin size={18} />
+      </span>
+      <div>
+        <Text className={styles.flightLabel}>Свежая глава</Text>
+        <Text className={styles.flightRoute}>{"Ресторан -> рынок"}</Text>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Дата</Text>
+        <strong>22 авг</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Медиа</Text>
+        <strong>фото + видео</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Настроение</Text>
+        <strong>вечер</strong>
+      </div>
+    </div>
   );
 }
 
@@ -1482,10 +1554,9 @@ function JournalTimeline({
                     <Image.PreviewGroup>
                       <div className={styles.entryImages}>
                         {post.photos.map((photo, index) => (
-                          <Image
+                          <MediaPreview
                             key={`${post.id}-${photo.src}-${index}`}
-                            src={photo.src}
-                            alt={photo.caption}
+                            photo={photo}
                           />
                         ))}
                       </div>
@@ -1647,7 +1718,7 @@ function EditPostModal({
                       data-removed={isRemoved}
                       key={`${post.id}-${photo.src}-${index}`}
                     >
-                      <Image src={photo.src} alt={photo.caption} preview={false} />
+                      <MediaPreview photo={photo} preview={false} />
                       <button
                         aria-label={isRemoved ? "Вернуть фото" : "Удалить фото"}
                         className={styles.removePhotoButton}
@@ -1698,7 +1769,7 @@ function PhotoGrid({ posts }: { posts: Post[] }) {
     <Row gutter={[12, 12]}>
       {photos.map((photo, index) => (
         <Col xs={12} md={8} key={`${photo.postTitle}-${photo.src}-${index}`}>
-          <Card className={styles.photoCard} cover={<Image src={photo.src} alt={photo.caption} />}>
+          <Card className={styles.photoCard} cover={<MediaPreview photo={photo} />}>
             <Text strong>{photo.caption}</Text>
             <Text type="secondary">{photo.postTitle}</Text>
           </Card>
