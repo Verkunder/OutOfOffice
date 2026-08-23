@@ -487,7 +487,8 @@ async function cleanupLegacySeedPosts(context: CloudContext) {
     "f8f72ed1-1c48-4c88-a6dc-2a8d5722847a",
     "b3f58dd2-7efe-48f4-b2aa-4b2c1c77f940",
     "fa4ef914-11ee-4065-88fe-239a583cc46b",
-    "9e09ea09-83c5-4eb5-a480-440723b8c5ae"
+    "9e09ea09-83c5-4eb5-a480-440723b8c5ae",
+    "b53b9ce0-e423-4665-9c5c-8362580b5e44"
   ];
 
   await context.client.from("posts").delete().in("id", legacySeedIds);

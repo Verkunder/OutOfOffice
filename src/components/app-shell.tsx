@@ -99,6 +99,7 @@ const pattayaNightPostId = "f8f72ed1-1c48-4c88-a6dc-2a8d5722847a";
 const firstSeaPostId = "b3f58dd2-7efe-48f4-b2aa-4b2c1c77f940";
 const poolChillPostId = "fa4ef914-11ee-4065-88fe-239a583cc46b";
 const marketEveningPostId = "9e09ea09-83c5-4eb5-a480-440723b8c5ae";
+const dolceVitaPostId = "b53b9ce0-e423-4665-9c5c-8362580b5e44";
 const rostovSeedKey = "rostov-green-drive";
 const moscowSeedKey = "moscow-arrival";
 const roomSeedKey = "technopark-yes-apart";
@@ -112,6 +113,7 @@ const pattayaNightSeedKey = "pattaya-night-food-foggy-sanctuary";
 const firstSeaSeedKey = "first-sea-breakfast-ganesha";
 const poolChillSeedKey = "pool-sea-pina-colada-chill";
 const marketEveningSeedKey = "local-restaurant-market-evening";
+const dolceVitaSeedKey = "dolce-vita-catamaran-islands";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
 const roomPlaceId = "1e8c887e-81d5-4a4d-837c-068d9eb77253";
@@ -653,6 +655,10 @@ function normalizeStarterPosts(posts: Post[], fallbackPosts: Post[]) {
       return { ...basePost, seedKey: marketEveningSeedKey };
     }
 
+    if (post.id === dolceVitaPostId || inferredSeedKey === dolceVitaSeedKey) {
+      return { ...basePost, seedKey: dolceVitaSeedKey };
+    }
+
     return basePost;
   });
 
@@ -781,6 +787,14 @@ function inferSeedKey(post: Post) {
     return marketEveningSeedKey;
   }
 
+  if (
+    post.id === dolceVitaPostId ||
+    photoSources.includes("/images/day-6/snorkeling-water-kiss.jpeg") ||
+    photoSources.includes("/images/day-6/pineapple-on-catamaran.jpeg")
+  ) {
+    return dolceVitaSeedKey;
+  }
+
   if (photoSources.includes("/images/day-1/green-drive.jpg")) {
     return rostovSeedKey;
   }
@@ -864,7 +878,11 @@ function Hero({ posts }: { posts: Post[] }) {
   const marketEveningPost = posts.find(
     (post) => (post.seedKey ?? inferSeedKey(post)) === marketEveningSeedKey
   );
+  const dolceVitaPost = posts.find(
+    (post) => (post.seedKey ?? inferSeedKey(post)) === dolceVitaSeedKey
+  );
   const heroImage =
+    dolceVitaPost?.photos.find((photo) => photo.src.includes("snorkeling-water-kiss"))?.src ??
     marketEveningPost?.photos.find((photo) => photo.src.includes("evening-market"))?.src ??
     poolChillPost?.photos.find((photo) => photo.src.includes("pina-colada"))?.src ??
     firstSeaPost?.photos.find((photo) => photo.src.includes("first-sea-couple"))?.src ??
@@ -886,7 +904,9 @@ function Hero({ posts }: { posts: Post[] }) {
           Москва → Бангкок → Паттайя
         </Tag>
         <Title level={1}>
-          {marketEveningPost
+          {dolceVitaPost
+            ? "Dolce Vita и острова"
+            : marketEveningPost
             ? "Вечерний рынок"
             : poolChillPost
             ? "Чилл у бассейна"
@@ -897,7 +917,9 @@ function Hero({ posts }: { posts: Post[] }) {
               : "Маршрут набирает главы"}
         </Title>
         <Paragraph>
-          {marketEveningPost
+          {dolceVitaPost
+            ? "Катамаран, островные бухты, снорклинг, ананасы на борту и пенная вечеринка - день, который наконец ощущался как большое морское приключение."
+            : marketEveningPost
             ? "Местный ресторан, меню с русской кухней, рынок в огнях и короткое видео с вечерней прогулки по району."
             : poolChillPost
             ? "Сегодня в дневнике простой отпуск: бассейн, пина колада, море, лежаки и ровно столько движения, сколько хочется."
@@ -909,7 +931,9 @@ function Hero({ posts }: { posts: Post[] }) {
               ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
             : "Ночная зарядка, дорога, московские виды и подготовка к вылету собираются в живой дневник."}
         </Paragraph>
-        {marketEveningPost ? (
+        {dolceVitaPost ? (
+          <DolceVitaCard />
+        ) : marketEveningPost ? (
           <MarketEveningCard />
         ) : poolChillPost ? (
           <PoolChillCard />
@@ -924,6 +948,32 @@ function Hero({ posts }: { posts: Post[] }) {
         )}
       </div>
     </section>
+  );
+}
+
+function DolceVitaCard() {
+  return (
+    <div className={styles.flightPlan}>
+      <span className={styles.flightIcon}>
+        <Waves size={18} />
+      </span>
+      <div>
+        <Text className={styles.flightLabel}>Свежая глава</Text>
+        <Text className={styles.flightRoute}>{"Паттайя -> Ко Пай -> Ко Сак -> вечер"}</Text>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Дата</Text>
+        <strong>23 авг</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Формат</Text>
+        <strong>катамаран</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Главное</Text>
+        <strong>снорклинг</strong>
+      </div>
+    </div>
   );
 }
 

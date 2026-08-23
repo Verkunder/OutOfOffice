@@ -2,6 +2,101 @@ import type { Idea, Place, Post, TripStats } from "./types";
 
 export const initialPosts: Post[] = [
   {
+    id: "b53b9ce0-e423-4665-9c5c-8362580b5e44",
+    seedKey: "dolce-vita-catamaran-islands",
+    title: "Dolce Vita: катамаран, острова и снорклинг",
+    body:
+      "Сегодня был самый морской день поездки: катались на катамаране Dolce Vita по островам Паттайи, снорклили, купались в прозрачной воде, участвовали в пенной вечеринке и пили прямо из ананасов. Точный порядок маршрута по памяти расплылся, поэтому восстановили его по описаниям русской программы Dolce Vita: старт с пирса Бали Хай, остров Ко Пай, затем Зеленый остров Ко Сак, остановки на пляже и у рифов для снорклинга, финальный проход к вечерней Паттайе и Храму Истины перед возвращением. В кадрах это ощущается ровно так: пирс и огни Pattaya City, спасжилеты, белый песок, маски, мокрые полотенца, ананасы на борту и лица людей, которые отлично провели день.",
+    mood: "морской драйв",
+    moodColor: "cyan",
+    locationName: "Dolce Vita catamaran, острова Паттайи",
+    visitedAt: "23 августа",
+    visitedAtIso: "2026-08-23T19:56:00+07:00",
+    tags: ["паттайя", "dolce vita", "катамаран", "острова", "снорклинг", "пенная вечеринка"],
+    photos: [
+      {
+        src: "/images/day-6/transfer-ride-selfie.jpeg",
+        caption: "Едем к морскому дню"
+      },
+      {
+        src: "/images/day-6/pattaya-city-arrival.jpeg",
+        caption: "Pattaya City у пирса перед прогулкой"
+      },
+      {
+        src: "/images/day-6/boat-life-jackets.jpeg",
+        caption: "На борту и уже в жилетах"
+      },
+      {
+        src: "/images/day-6/catamaran-ride-selfie.jpeg",
+        caption: "Катамаранный режим включен"
+      },
+      {
+        src: "/images/day-6/pineapple-on-catamaran.jpeg",
+        caption: "Ананас прямо на борту"
+      },
+      {
+        src: "/images/day-6/island-beach-selfie.jpeg",
+        caption: "Первая островная остановка"
+      },
+      {
+        src: "/images/day-6/island-white-sand-cove.jpeg",
+        caption: "Белый песок и тихая бухта"
+      },
+      {
+        src: "/images/day-6/island-cove-water.jpeg",
+        caption: "Вода у острова"
+      },
+      {
+        src: "/images/day-6/snorkeling-mask-selfie.jpeg",
+        caption: "Маски, вода и снорклинг"
+      },
+      {
+        src: "/images/day-6/snorkeling-underwater-selfie.jpeg",
+        caption: "Под водой вместе"
+      },
+      {
+        src: "/images/day-6/snorkeling-underwater-kiss.jpeg",
+        caption: "Подводный кадр"
+      },
+      {
+        src: "/images/day-6/snorkeling-water-kiss.jpeg",
+        caption: "После снорклинга"
+      },
+      {
+        src: "/images/day-6/pirate-boat-at-sea.jpeg",
+        caption: "Корабль по соседству в море"
+      },
+      {
+        src: "/images/day-6/beach-meditation.jpeg",
+        caption: "Пляжная медитация"
+      },
+      {
+        src: "/images/day-6/beach-beer-relax.jpeg",
+        caption: "Островной Chang и полное спокойствие"
+      },
+      {
+        src: "/images/day-6/beach-salute-portrait.jpeg",
+        caption: "Портрет у воды"
+      },
+      {
+        src: "/images/day-6/rocky-sea-view.jpeg",
+        caption: "Скалы, море и пауза"
+      },
+      {
+        src: "/images/day-6/pattaya-city-night-sign.jpeg",
+        caption: "Pattaya City уже вечером"
+      },
+      {
+        src: "/images/day-6/dolce-vita-pier-couple.jpeg",
+        caption: "Финиш у пирса после насыщенного дня"
+      },
+      {
+        src: "/images/day-6/pattaya-bay-cruise-boat.jpeg",
+        caption: "Вечерняя бухта Паттайи"
+      }
+    ]
+  },
+  {
     id: "9e09ea09-83c5-4eb5-a480-440723b8c5ae",
     seedKey: "local-restaurant-market-evening",
     title: "Местный ресторан, рынок и вечерняя Паттайя",
