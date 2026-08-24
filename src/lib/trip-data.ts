@@ -2,6 +2,41 @@ import type { Idea, Place, Post, TripStats } from "./types";
 
 export const initialPosts: Post[] = [
   {
+    id: "bd0c0fc6-73d1-4c0a-b812-5df1f0f717fc",
+    seedKey: "full-day-by-the-sea",
+    title: "День у моря с 11 до 18",
+    body:
+      "Сегодня наконец сделали самый простой и правильный отпускной план: вышли к морю в 11 утра и вернулись только к 6 вечера. Без маршрута и обязательных точек - лежаки, жаркое солнце, коктейли, бассейн рядом, море перед глазами и длинная пауза, где время почти не двигается. В какой-то момент день стал похож на одну большую открытку: цветок в волосах, фламинго в бассейне, холодный Leo, сон на лежаке и полное ощущение, что мы никуда не торопимся.",
+    mood: "морская лень",
+    moodColor: "cyan",
+    locationName: "Пляж и бассейн рядом с Mayaana Beach Resort",
+    visitedAt: "24 августа",
+    visitedAtIso: "2026-08-24T18:00:00+07:00",
+    tags: ["паттайя", "море", "пляж", "бассейн", "коктейли", "чилл"],
+    photos: [
+      {
+        src: "/images/day-7/sea-day-flower-hair.jpeg",
+        caption: "Цветок в волосах и спокойное море"
+      },
+      {
+        src: "/images/day-7/sea-day-flamingo-pool.jpeg",
+        caption: "Фламинго, бассейн и медитативный режим"
+      },
+      {
+        src: "/images/day-7/sea-day-cocktails-pool.jpeg",
+        caption: "Коктейли у бассейна после моря"
+      },
+      {
+        src: "/images/day-7/sea-day-leo-nap.jpeg",
+        caption: "Leo и короткая перезагрузка на лежаке"
+      },
+      {
+        src: "/images/day-7/sea-day-lounger-rest.jpeg",
+        caption: "Лежак у моря и полный режим отдыха"
+      }
+    ]
+  },
+  {
     id: "b53b9ce0-e423-4665-9c5c-8362580b5e44",
     seedKey: "dolce-vita-catamaran-islands",
     title: "Dolce Vita: катамаран, острова и снорклинг",

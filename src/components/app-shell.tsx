@@ -100,6 +100,7 @@ const firstSeaPostId = "b3f58dd2-7efe-48f4-b2aa-4b2c1c77f940";
 const poolChillPostId = "fa4ef914-11ee-4065-88fe-239a583cc46b";
 const marketEveningPostId = "9e09ea09-83c5-4eb5-a480-440723b8c5ae";
 const dolceVitaPostId = "b53b9ce0-e423-4665-9c5c-8362580b5e44";
+const seaDayPostId = "bd0c0fc6-73d1-4c0a-b812-5df1f0f717fc";
 const rostovSeedKey = "rostov-green-drive";
 const moscowSeedKey = "moscow-arrival";
 const roomSeedKey = "technopark-yes-apart";
@@ -114,6 +115,7 @@ const firstSeaSeedKey = "first-sea-breakfast-ganesha";
 const poolChillSeedKey = "pool-sea-pina-colada-chill";
 const marketEveningSeedKey = "local-restaurant-market-evening";
 const dolceVitaSeedKey = "dolce-vita-catamaran-islands";
+const seaDaySeedKey = "full-day-by-the-sea";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
 const roomPlaceId = "1e8c887e-81d5-4a4d-837c-068d9eb77253";
@@ -659,6 +661,10 @@ function normalizeStarterPosts(posts: Post[], fallbackPosts: Post[]) {
       return { ...basePost, seedKey: dolceVitaSeedKey };
     }
 
+    if (post.id === seaDayPostId || inferredSeedKey === seaDaySeedKey) {
+      return { ...basePost, seedKey: seaDaySeedKey };
+    }
+
     return basePost;
   });
 
@@ -795,6 +801,14 @@ function inferSeedKey(post: Post) {
     return dolceVitaSeedKey;
   }
 
+  if (
+    post.id === seaDayPostId ||
+    photoSources.includes("/images/day-7/sea-day-flower-hair.jpeg") ||
+    photoSources.includes("/images/day-7/sea-day-cocktails-pool.jpeg")
+  ) {
+    return seaDaySeedKey;
+  }
+
   if (photoSources.includes("/images/day-1/green-drive.jpg")) {
     return rostovSeedKey;
   }
@@ -881,7 +895,9 @@ function Hero({ posts }: { posts: Post[] }) {
   const dolceVitaPost = posts.find(
     (post) => (post.seedKey ?? inferSeedKey(post)) === dolceVitaSeedKey
   );
+  const seaDayPost = posts.find((post) => (post.seedKey ?? inferSeedKey(post)) === seaDaySeedKey);
   const heroImage =
+    seaDayPost?.photos.find((photo) => photo.src.includes("sea-day-flower-hair"))?.src ??
     dolceVitaPost?.photos.find((photo) => photo.src.includes("snorkeling-water-kiss"))?.src ??
     marketEveningPost?.photos.find((photo) => photo.src.includes("evening-market"))?.src ??
     poolChillPost?.photos.find((photo) => photo.src.includes("pina-colada"))?.src ??
@@ -904,7 +920,9 @@ function Hero({ posts }: { posts: Post[] }) {
           Москва → Бангкок → Паттайя
         </Tag>
         <Title level={1}>
-          {dolceVitaPost
+          {seaDayPost
+            ? "День у моря"
+            : dolceVitaPost
             ? "Dolce Vita и острова"
             : marketEveningPost
             ? "Вечерний рынок"
@@ -917,7 +935,9 @@ function Hero({ posts }: { posts: Post[] }) {
               : "Маршрут набирает главы"}
         </Title>
         <Paragraph>
-          {dolceVitaPost
+          {seaDayPost
+            ? "Вышли к воде в 11 утра и вернулись только к 6 вечера: море, лежаки, бассейн, коктейли и редкий день без маршрута."
+            : dolceVitaPost
             ? "Катамаран, островные бухты, снорклинг, ананасы на борту и пенная вечеринка - день, который наконец ощущался как большое морское приключение."
             : marketEveningPost
             ? "Местный ресторан, меню с русской кухней, рынок в огнях и короткое видео с вечерней прогулки по району."
@@ -931,7 +951,9 @@ function Hero({ posts }: { posts: Post[] }) {
               ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
             : "Ночная зарядка, дорога, московские виды и подготовка к вылету собираются в живой дневник."}
         </Paragraph>
-        {dolceVitaPost ? (
+        {seaDayPost ? (
+          <SeaDayCard />
+        ) : dolceVitaPost ? (
           <DolceVitaCard />
         ) : marketEveningPost ? (
           <MarketEveningCard />
@@ -948,6 +970,32 @@ function Hero({ posts }: { posts: Post[] }) {
         )}
       </div>
     </section>
+  );
+}
+
+function SeaDayCard() {
+  return (
+    <div className={styles.flightPlan}>
+      <span className={styles.flightIcon}>
+        <Waves size={18} />
+      </span>
+      <div>
+        <Text className={styles.flightLabel}>Свежая глава</Text>
+        <Text className={styles.flightRoute}>{"Море -> бассейн -> море"}</Text>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Дата</Text>
+        <strong>24 авг</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>У воды</Text>
+        <strong>11:00-18:00</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Режим</Text>
+        <strong>без маршрута</strong>
+      </div>
+    </div>
   );
 }
 
