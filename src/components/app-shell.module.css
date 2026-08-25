@@ -344,16 +344,33 @@
 }
 
 .entryImages {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  column-count: 3;
+  column-gap: 12px;
   margin-top: 4px;
 }
 
-.entryImages :global(.ant-image-img) {
+.entryMediaItem {
+  display: inline-block;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
+  margin: 0 0 12px;
+  overflow: hidden;
+  vertical-align: top;
+  break-inside: avoid;
+  border-radius: 8px;
+  background: #eef4ee;
+}
+
+.entryMediaItem :global(.ant-image) {
+  display: block;
+  width: 100%;
+}
+
+.entryMediaItem :global(.ant-image-img) {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 560px;
+  object-fit: contain;
   border-radius: 8px;
 }
 
@@ -364,6 +381,12 @@
   object-fit: contain;
   background: #0f172a;
   border-radius: 8px;
+}
+
+@media (max-width: 1100px) {
+  .entryImages {
+    column-count: 2;
+  }
 }
 
 .entryMeta {
@@ -921,15 +944,16 @@
   }
 
   .entryImages {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    column-count: 1;
+    column-gap: 0;
   }
 
-  .entryImages :global(.ant-image-img) {
-    aspect-ratio: 4 / 3;
+  .entryMediaItem {
+    margin-bottom: 8px;
   }
 
-  .entryImages .mediaVideo {
+  .entryMediaItem :global(.ant-image-img),
+  .entryMediaItem .mediaVideo {
     max-height: 78vh;
   }
 

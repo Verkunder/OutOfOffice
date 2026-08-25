@@ -1703,10 +1703,12 @@ function JournalTimeline({
                     <Image.PreviewGroup>
                       <div className={styles.entryImages}>
                         {post.photos.map((photo, index) => (
-                          <MediaPreview
+                          <div
                             key={`${post.id}-${photo.src}-${index}`}
-                            photo={photo}
-                          />
+                            className={styles.entryMediaItem}
+                          >
+                            <MediaPreview photo={photo} />
+                          </div>
                         ))}
                       </div>
                     </Image.PreviewGroup>
