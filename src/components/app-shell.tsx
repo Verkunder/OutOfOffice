@@ -101,6 +101,7 @@ const poolChillPostId = "fa4ef914-11ee-4065-88fe-239a583cc46b";
 const marketEveningPostId = "9e09ea09-83c5-4eb5-a480-440723b8c5ae";
 const dolceVitaPostId = "b53b9ce0-e423-4665-9c5c-8362580b5e44";
 const seaDayPostId = "bd0c0fc6-73d1-4c0a-b812-5df1f0f717fc";
+const khaoKheowPostId = "0662d537-84b6-4cf6-afa0-0ebdb90470c8";
 const rostovSeedKey = "rostov-green-drive";
 const moscowSeedKey = "moscow-arrival";
 const roomSeedKey = "technopark-yes-apart";
@@ -116,6 +117,7 @@ const poolChillSeedKey = "pool-sea-pina-colada-chill";
 const marketEveningSeedKey = "local-restaurant-market-evening";
 const dolceVitaSeedKey = "dolce-vita-catamaran-islands";
 const seaDaySeedKey = "full-day-by-the-sea";
+const khaoKheowSeedKey = "khao-kheow-open-zoo";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
 const roomPlaceId = "1e8c887e-81d5-4a4d-837c-068d9eb77253";
@@ -665,6 +667,10 @@ function normalizeStarterPosts(posts: Post[], fallbackPosts: Post[]) {
       return { ...basePost, seedKey: seaDaySeedKey };
     }
 
+    if (post.id === khaoKheowPostId || inferredSeedKey === khaoKheowSeedKey) {
+      return { ...basePost, seedKey: khaoKheowSeedKey };
+    }
+
     return basePost;
   });
 
@@ -809,6 +815,14 @@ function inferSeedKey(post: Post) {
     return seaDaySeedKey;
   }
 
+  if (
+    post.id === khaoKheowPostId ||
+    photoSources.includes("/images/day-8/khao-kheow-giraffe-feeding.jpeg") ||
+    photoSources.includes("/videos/day-8/khao-kheow-zoo-cart.mov")
+  ) {
+    return khaoKheowSeedKey;
+  }
+
   if (photoSources.includes("/images/day-1/green-drive.jpg")) {
     return rostovSeedKey;
   }
@@ -896,7 +910,12 @@ function Hero({ posts }: { posts: Post[] }) {
     (post) => (post.seedKey ?? inferSeedKey(post)) === dolceVitaSeedKey
   );
   const seaDayPost = posts.find((post) => (post.seedKey ?? inferSeedKey(post)) === seaDaySeedKey);
+  const khaoKheowPost = posts.find(
+    (post) => (post.seedKey ?? inferSeedKey(post)) === khaoKheowSeedKey
+  );
   const heroImage =
+    khaoKheowPost?.photos.find((photo) => photo.src.includes("khao-kheow-giraffe-feeding"))?.src ??
+    khaoKheowPost?.photos.find((photo) => photo.src.includes("khao-kheow-elephant-feeding"))?.src ??
     seaDayPost?.photos.find((photo) => photo.src.includes("sea-day-flower-hair"))?.src ??
     dolceVitaPost?.photos.find((photo) => photo.src.includes("snorkeling-water-kiss"))?.src ??
     marketEveningPost?.photos.find((photo) => photo.src.includes("evening-market"))?.src ??
@@ -910,7 +929,7 @@ function Hero({ posts }: { posts: Post[] }) {
     <section className={styles.hero}>
       <Image
         src={heroImage}
-        alt="Вечерний рынок и рестораны в Паттайе"
+        alt="Кхао Кхео и свежая глава путешествия"
         preview={false}
         className={styles.heroImage}
       />
@@ -920,7 +939,9 @@ function Hero({ posts }: { posts: Post[] }) {
           Москва → Бангкок → Паттайя
         </Tag>
         <Title level={1}>
-          {seaDayPost
+          {khaoKheowPost
+            ? "Кхао Кхео"
+            : seaDayPost
             ? "День у моря"
             : dolceVitaPost
             ? "Dolce Vita и острова"
@@ -935,7 +956,9 @@ function Hero({ posts }: { posts: Post[] }) {
               : "Маршрут набирает главы"}
         </Title>
         <Paragraph>
-          {seaDayPost
+          {khaoKheowPost
+            ? "Открытый зоопарк под Сирачей: гольф-кар, жирафы, слоны, носорог, птицы, обезьяны и большой зеленый день между Паттайей и Бангкоком."
+            : seaDayPost
             ? "Вышли к воде в 11 утра и вернулись только к 6 вечера: море, лежаки, бассейн, коктейли и редкий день без маршрута."
             : dolceVitaPost
             ? "Катамаран, островные бухты, снорклинг, ананасы на борту и пенная вечеринка - день, который наконец ощущался как большое морское приключение."
@@ -951,7 +974,9 @@ function Hero({ posts }: { posts: Post[] }) {
               ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
             : "Ночная зарядка, дорога, московские виды и подготовка к вылету собираются в живой дневник."}
         </Paragraph>
-        {seaDayPost ? (
+        {khaoKheowPost ? (
+          <KhaoKheowCard />
+        ) : seaDayPost ? (
           <SeaDayCard />
         ) : dolceVitaPost ? (
           <DolceVitaCard />
@@ -970,6 +995,32 @@ function Hero({ posts }: { posts: Post[] }) {
         )}
       </div>
     </section>
+  );
+}
+
+function KhaoKheowCard() {
+  return (
+    <div className={styles.flightPlan}>
+      <span className={styles.flightIcon}>
+        <MapPin size={18} />
+      </span>
+      <div>
+        <Text className={styles.flightLabel}>Свежая глава</Text>
+        <Text className={styles.flightRoute}>{"Паттайя -> Khao Kheow Open Zoo"}</Text>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Дата</Text>
+        <strong>25 авг</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Локация</Text>
+        <strong>Si Racha</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Медиа</Text>
+        <strong>30 кадров</strong>
+      </div>
+    </div>
   );
 }
 

@@ -2,6 +2,175 @@ import type { Idea, Place, Post, TripStats } from "./types";
 
 export const initialPosts: Post[] = [
   {
+    id: "0662d537-84b6-4cf6-afa0-0ebdb90470c8",
+    seedKey: "khao-kheow-open-zoo",
+    title: "Кхао Кхео: зоопарк в джунглях",
+    body:
+      "Сегодня выбрались в Khao Kheow Open Zoo - открытый зоопарк в Bang Phra, район Si Racha, Chon Buri, примерно между Паттайей и Бангкоком. Взяли формат прогулки по большой зеленой территории: ехали на гольф-каре, кормили жирафа, зависали у слонов, смотрели кенгуру, птиц, черепах, гиббонов, обезьян, дикобразов, крокодила, носорога, фламинго и зебр. День получился жаркий и очень живой: не просто посмотреть на животных, а ехать через зелень, останавливаться у вольеров, ловить смешные моменты и возвращаться с ощущением маленького сафари.",
+    mood: "сафари-день",
+    moodColor: "green",
+    locationName: "Khao Kheow Open Zoo, Bang Phra, Si Racha, Chon Buri",
+    visitedAt: "25 августа",
+    visitedAtIso: "2026-08-25T15:30:00+07:00",
+    tags: ["паттайя", "кхао кхео", "зоопарк", "сирача", "жирафы", "слоны", "гиббоны", "гольф-кар"],
+    photos: [
+      {
+        src: "/images/day-8/khao-kheow-koala.jpeg",
+        caption: "Коала в зелени"
+      },
+      {
+        src: "/images/day-8/khao-kheow-kangaroos-shade.jpeg",
+        caption: "Кенгуру прячутся в тени"
+      },
+      {
+        src: "/images/day-8/khao-kheow-kangaroo-feeding.jpeg",
+        caption: "Обед у кенгуру"
+      },
+      {
+        src: "/images/day-8/khao-kheow-crowned-pigeons.jpeg",
+        caption: "Корончатые голуби как отдельная фотосессия"
+      },
+      {
+        src: "/images/day-8/khao-kheow-kangaroo-rest.jpeg",
+        caption: "Кенгуру на дневной паузе"
+      },
+      {
+        src: "/images/day-8/khao-kheow-porcupines.jpeg",
+        caption: "Дикобразы за обедом"
+      },
+      {
+        src: "/images/day-8/khao-kheow-alligator.jpeg",
+        caption: "Крокодил под ветками"
+      },
+      {
+        src: "/images/day-8/khao-kheow-tortoises.jpeg",
+        caption: "Черепахи поймали свой неспешный момент"
+      },
+      {
+        src: "/images/day-8/khao-kheow-capuchin.jpeg",
+        caption: "Обезьяна в своем режиме"
+      },
+      {
+        src: "/images/day-8/khao-kheow-gibbon-tree.jpeg",
+        caption: "Гиббон завис в зелени"
+      },
+      {
+        src: "/images/day-8/khao-kheow-gibbon-silhouette.jpeg",
+        caption: "Силуэт гиббона на ветке"
+      },
+      {
+        src: "/images/day-8/khao-kheow-gibbon-branch.jpeg",
+        caption: "Гиббон устроился в тени"
+      },
+      {
+        src: "/images/day-8/khao-kheow-monkey-portrait-girl.jpeg",
+        caption: "Портрет с местным наблюдателем"
+      },
+      {
+        src: "/images/day-8/khao-kheow-monkey-portrait-boy.jpeg",
+        caption: "Еще один портрет с обезьяной на стене"
+      },
+      {
+        src: "/images/day-8/khao-kheow-macaque-wall.jpeg",
+        caption: "Макака устроилась как хозяин маршрута"
+      },
+      {
+        src: "/images/day-8/khao-kheow-monkey-cart.jpeg",
+        caption: "Обезьяна захватила гольф-кар"
+      },
+      {
+        src: "/images/day-8/khao-kheow-macaque-close.jpeg",
+        caption: "Макака крупным планом"
+      },
+      {
+        src: "/images/day-8/khao-kheow-elephant-green.jpeg",
+        caption: "Слон в зелени"
+      },
+      {
+        src: "/images/day-8/khao-kheow-couple-elephant-selfie.jpeg",
+        caption: "Селфи на фоне слонов"
+      },
+      {
+        src: "/images/day-8/khao-kheow-couple-elephant-wide.jpeg",
+        caption: "Еще один кадр у слоновьей зоны"
+      },
+      {
+        src: "/images/day-8/khao-kheow-elephant-feeding.jpeg",
+        caption: "Кормление слона"
+      },
+      {
+        src: "/images/day-8/khao-kheow-zoo-cart-selfie.jpeg",
+        caption: "Едем по зоопарку на открытом транспорте"
+      },
+      {
+        src: "/images/day-8/khao-kheow-giraffe-feeding.jpeg",
+        caption: "Кормление жирафа - главный контакт дня"
+      },
+      {
+        src: "/images/day-8/khao-kheow-green-path-portrait.jpeg",
+        caption: "Зеленая часть маршрута"
+      },
+      {
+        src: "/images/day-8/khao-kheow-rhino.jpeg",
+        caption: "Носорог в тени"
+      },
+      {
+        src: "/images/day-8/khao-kheow-flamingos.jpeg",
+        caption: "Фламинго у воды"
+      },
+      {
+        src: "/images/day-8/khao-kheow-zebras.jpeg",
+        caption: "Зебры отдыхают на солнце"
+      },
+      {
+        src: "/images/day-8/khao-kheow-meerkat.jpeg",
+        caption: "Сурикат в песке"
+      },
+      {
+        src: "/images/day-8/khao-kheow-couple-sunny-selfie.jpeg",
+        caption: "Селфи после большого круга"
+      },
+      {
+        src: "/images/day-8/khao-kheow-giraffes.jpeg",
+        caption: "Жирафы под деревьями"
+      },
+      {
+        src: "/images/day-8/khao-kheow-madagascar-statue.jpeg",
+        caption: "Финальный кадр с мадагаскарской компанией"
+      },
+      {
+        src: "/videos/day-8/khao-kheow-zoo-cart.mov",
+        caption: "Видео: едем по Кхао Кхео",
+        type: "video"
+      },
+      {
+        src: "/videos/day-8/khao-kheow-elephant-video.mov",
+        caption: "Видео: слоны в открытой зоне",
+        type: "video"
+      },
+      {
+        src: "/videos/day-8/khao-kheow-giraffe-video.mov",
+        caption: "Видео: кормление жирафа",
+        type: "video"
+      },
+      {
+        src: "/videos/day-8/khao-kheow-tortoise-video.mov",
+        caption: "Видео: черепахи в своем темпе",
+        type: "video"
+      },
+      {
+        src: "/videos/day-8/khao-kheow-gibbon-video.mov",
+        caption: "Видео: гиббон в зелени",
+        type: "video"
+      },
+      {
+        src: "/videos/day-8/khao-kheow-zoo-extra-video.mov",
+        caption: "Видео: еще один момент из Кхао Кхео",
+        type: "video"
+      }
+    ]
+  },
+  {
     id: "bd0c0fc6-73d1-4c0a-b812-5df1f0f717fc",
     seedKey: "full-day-by-the-sea",
     title: "День у моря с 11 до 18",
