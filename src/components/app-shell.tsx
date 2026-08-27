@@ -1407,7 +1407,7 @@ function TripNavigator({
             >
               <span className={styles.dayChipNumber}>Д{day.tripDay}</span>
               <div className={styles.dayChipTitle}>
-                <strong>{day.title}</strong>
+                <strong>{formatDayChipTitle(day.title)}</strong>
                 <span>{day.posts.map((post) => post.title).slice(0, 2).join(" · ")}</span>
               </div>
               <div className={styles.dayChipMeta}>
@@ -1751,6 +1751,10 @@ function formatDayTitle(date: Date) {
     month: "long",
     weekday: "long"
   }).format(date);
+}
+
+function formatDayChipTitle(dayTitle: string) {
+  return dayTitle.replace(/^[^,]+,\s*/, "");
 }
 
 function formatPostDate(post: Post) {

@@ -475,7 +475,12 @@
 }
 
 .dayChipTitle strong {
+  overflow: hidden;
   color: #24324a;
+  font-size: 17px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dayChipTitle span {
