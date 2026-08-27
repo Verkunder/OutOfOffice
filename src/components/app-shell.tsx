@@ -703,6 +703,16 @@ function normalizeStarterPosts(posts: Post[], fallbackPosts: Post[]) {
       return { ...basePost, seedKey: khaoKheowSeedKey };
     }
 
+    if (post.id === ayutthayaPostId || inferredSeedKey === ayutthayaSeedKey) {
+      const fallbackPost = fallbackPosts.find(
+        (fallbackPost) => (fallbackPost.seedKey ?? inferSeedKey(fallbackPost)) === ayutthayaSeedKey
+      );
+
+      return fallbackPost
+        ? { ...fallbackPost, id: basePost.id, seedKey: ayutthayaSeedKey }
+        : { ...basePost, seedKey: ayutthayaSeedKey };
+    }
+
     return basePost;
   });
 
@@ -945,7 +955,11 @@ function Hero({ posts }: { posts: Post[] }) {
   const khaoKheowPost = posts.find(
     (post) => (post.seedKey ?? inferSeedKey(post)) === khaoKheowSeedKey
   );
+  const ayutthayaPost = posts.find(
+    (post) => (post.seedKey ?? inferSeedKey(post)) === ayutthayaSeedKey
+  );
   const heroImage =
+    ayutthayaPost?.photos.find((photo) => !isVideoMedia(photo))?.src ??
     khaoKheowPost?.photos.find((photo) => photo.src.includes("khao-kheow-giraffe-feeding"))?.src ??
     khaoKheowPost?.photos.find((photo) => photo.src.includes("khao-kheow-elephant-feeding"))?.src ??
     seaDayPost?.photos.find((photo) => photo.src.includes("sea-day-flower-hair"))?.src ??
@@ -971,7 +985,9 @@ function Hero({ posts }: { posts: Post[] }) {
           Москва → Бангкок → Паттайя
         </Tag>
         <Title level={1}>
-          {khaoKheowPost
+          {ayutthayaPost
+            ? "Аюттхая"
+            : khaoKheowPost
             ? "Кхао Кхео"
             : seaDayPost
             ? "День у моря"
@@ -988,7 +1004,9 @@ function Hero({ posts }: { posts: Post[] }) {
               : "Маршрут набирает главы"}
         </Title>
         <Paragraph>
-          {khaoKheowPost
+          {ayutthayaPost
+            ? "Древняя столица Сиама: руины храмов, красный кирпич, статуи Будды, рынки и большой исторический день между слоями старого города."
+            : khaoKheowPost
             ? "Открытый зоопарк под Сирачей: гольф-кар, жирафы, слоны, носорог, птицы, обезьяны и большой зеленый день между Паттайей и Бангкоком."
             : seaDayPost
             ? "Вышли к воде в 11 утра и вернулись только к 6 вечера: море, лежаки, бассейн, коктейли и редкий день без маршрута."
@@ -1006,7 +1024,9 @@ function Hero({ posts }: { posts: Post[] }) {
               ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
             : "Ночная зарядка, дорога, московские виды и подготовка к вылету собираются в живой дневник."}
         </Paragraph>
-        {khaoKheowPost ? (
+        {ayutthayaPost ? (
+          <AyutthayaCard />
+        ) : khaoKheowPost ? (
           <KhaoKheowCard />
         ) : seaDayPost ? (
           <SeaDayCard />
@@ -1027,6 +1047,32 @@ function Hero({ posts }: { posts: Post[] }) {
         )}
       </div>
     </section>
+  );
+}
+
+function AyutthayaCard() {
+  return (
+    <div className={styles.flightPlan}>
+      <span className={styles.flightIcon}>
+        <MapPin size={18} />
+      </span>
+      <div>
+        <Text className={styles.flightLabel}>Свежая глава</Text>
+        <Text className={styles.flightRoute}>{"Паттайя -> Аюттхая -> храмы"}</Text>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Дата</Text>
+        <strong>27 авг</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Локация</Text>
+        <strong>Ayutthaya</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Медиа</Text>
+        <strong>90 фото</strong>
+      </div>
+    </div>
   );
 }
 
