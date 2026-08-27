@@ -378,8 +378,8 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
                 {activeView === "journal" && (
                   <>
                     <Hero posts={journalPosts} />
-                    <TripNavigator posts={journalPosts} />
-                    <Card className={styles.sectionCard}>
+                    <TripNavigator onOpen={handleOpenPost} posts={journalPosts} />
+                    <Card className={styles.sectionCard} id="timeline">
                       <SectionHeader
                         title="Таймлайн"
                         subtitle="Живая хронология маршрута: дорога, перелет, Паттайя и новые главы по мере поездки."
@@ -1337,20 +1337,26 @@ function SectionHeader({
   );
 }
 
-function TripNavigator({ posts }: { posts: Post[] }) {
+function TripNavigator({
+  onOpen,
+  posts
+}: {
+  onOpen: (post: Post, photoIndex?: number) => void;
+  posts: Post[];
+}) {
   const sortedPosts = sortPostsNewestFirst(posts);
   const dayGroups = groupPostsByDay(sortedPosts);
-  const media = getMediaBreakdown(sortedPosts);
-  const locations = getLocationSummaries(sortedPosts);
-  const tags = getTagSummaries(sortedPosts);
   const latestPost = sortedPosts[0];
+  const latestPhoto = latestPost?.photos.find((photo) => !isVideoMedia(photo));
+  const currentDay = dayGroups[0];
+  const tripDays = getTripDays(sortedPosts);
   const newestDays = dayGroups.slice(0, 5);
 
   return (
     <Card className={`${styles.sectionCard} ${styles.navigatorCard}`}>
       <SectionHeader
-        title="Содержание поездки"
-        subtitle="Живой каркас дневника: дни, места, темы и новые главы будут пополняться вместе с маршрутом."
+        title="Что происходит сейчас"
+        subtitle="Короткий вход в дневник: где остановились, какой день поездки и куда прыгнуть в ленте."
         action={
           latestPost ? (
             <Tag className={styles.navigatorLatestTag} color={latestPost.moodColor}>
@@ -1360,120 +1366,57 @@ function TripNavigator({ posts }: { posts: Post[] }) {
         }
       />
 
-      <div className={styles.navigatorMetrics}>
-        <div className={styles.navigatorMetric} data-tone="sun">
-          <div className={styles.navigatorMetricHead}>
-            <span>Дней в дневнике</span>
-            <span className={styles.navigatorMetricIcon}>
-              <Compass size={17} />
-            </span>
+      {latestPost && currentDay && (
+        <div className={styles.navigatorFocus}>
+          <div className={styles.navigatorFocusCopy}>
+            <Text className={styles.cardEyebrow}>
+              День {tripDays} в пути · {currentDay.title}
+            </Text>
+            <Title level={3}>{latestPost.title}</Title>
+            <Paragraph>{getPostTeaser(latestPost)}</Paragraph>
+            <Space size={8} wrap>
+              <Button
+                icon={<Maximize2 size={16} />}
+                onClick={() => onOpen(latestPost)}
+                type="primary"
+              >
+                Смотреть главу
+              </Button>
+              <Button href="#timeline">К полной ленте</Button>
+            </Space>
           </div>
-          <strong className={styles.navigatorMetricValue}>{getTripDays(sortedPosts)}</strong>
-          <span className={styles.navigatorMetricText}>
-            Маршрут не закрыт: новые даты просто появятся здесь.
-          </span>
+          {latestPhoto && (
+            <div className={styles.navigatorFocusMedia}>
+              <Image alt={latestPhoto.caption} preview={false} src={latestPhoto.src} />
+            </div>
+          )}
         </div>
+      )}
 
-        <div className={styles.navigatorMetric} data-tone="sea">
-          <div className={styles.navigatorMetricHead}>
-            <span>Медиа</span>
-            <span className={styles.navigatorMetricIcon}>
-              <Camera size={17} />
-            </span>
-          </div>
-          <strong className={styles.navigatorMetricValue}>{media.total}</strong>
-          <span className={styles.navigatorMetricText}>
-            {media.photos} {formatRussianPlural(media.photos, ["фото", "фото", "фото"])} и{" "}
-            {media.videos} видео
-          </span>
+      <div className={styles.navigatorPanel}>
+        <div className={styles.navigatorPanelTitle}>
+          <BookOpen size={18} />
+          <span>Быстрый переход по дням</span>
         </div>
-
-        <div className={styles.navigatorMetric} data-tone="leaf">
-          <div className={styles.navigatorMetricHead}>
-            <span>Локации</span>
-            <span className={styles.navigatorMetricIcon}>
-              <MapPin size={17} />
-            </span>
-          </div>
-          <strong className={styles.navigatorMetricValue}>{locations.length}</strong>
-          <span className={styles.navigatorMetricText}>
-            От Ростова и Москвы до Паттайи, островов и зоопарка.
-          </span>
-        </div>
-
-        <div className={styles.navigatorMetric} data-tone="ink">
-          <div className={styles.navigatorMetricHead}>
-            <span>Темы</span>
-            <span className={styles.navigatorMetricIcon}>
-              <Sparkles size={17} />
-            </span>
-          </div>
-          <strong className={styles.navigatorMetricValue}>{tags.length}</strong>
-          <span className={styles.navigatorMetricText}>
-            Море, еда, животные, дорога и все новые поводы.
-          </span>
-        </div>
-      </div>
-
-      <div className={styles.navigatorBody}>
-        <div className={styles.navigatorPanel}>
-          <div className={styles.navigatorPanelTitle}>
-            <BookOpen size={18} />
-            <span>Последние дни</span>
-          </div>
-          <div className={styles.dayRail}>
-            {newestDays.map((day) => (
-              <div className={styles.dayChip} key={day.dateKey}>
-                <span className={styles.dayChipNumber}>Д{day.tripDay}</span>
-                <div className={styles.dayChipTitle}>
-                  <strong>{day.title}</strong>
-                  <span>{day.posts.map((post) => post.title).slice(0, 2).join(" · ")}</span>
-                </div>
-                <div className={styles.dayChipMeta}>
-                  {day.posts.length}{" "}
-                  {formatRussianPlural(day.posts.length, ["запись", "записи", "записей"])} ·{" "}
-                  {day.photos} медиа
-                </div>
+        <div className={styles.dayRail}>
+          {newestDays.map((day) => (
+            <a
+              className={styles.dayChip}
+              href={`#${getDayAnchorId(day.dateKey)}`}
+              key={day.dateKey}
+            >
+              <span className={styles.dayChipNumber}>Д{day.tripDay}</span>
+              <div className={styles.dayChipTitle}>
+                <strong>{day.title}</strong>
+                <span>{day.posts.map((post) => post.title).slice(0, 2).join(" · ")}</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.navigatorAside}>
-          <div className={styles.navigatorPanel}>
-            <div className={styles.navigatorPanelTitle}>
-              <MapPin size={18} />
-              <span>Локации</span>
-            </div>
-            <div className={styles.locationList}>
-              {locations.slice(0, 5).map((location) => (
-                <div className={styles.locationItem} key={location.name}>
-                  <div>
-                    <strong>{location.name}</strong>
-                    <span>
-                      {location.posts}{" "}
-                      {formatRussianPlural(location.posts, ["запись", "записи", "записей"])}
-                    </span>
-                  </div>
-                  <Tag color="green">{location.media} медиа</Tag>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.navigatorPanel}>
-            <div className={styles.navigatorPanelTitle}>
-              <Sparkles size={18} />
-              <span>Темы</span>
-            </div>
-            <div className={styles.tagCloud}>
-              {tags.slice(0, 12).map((tag) => (
-                <Tag key={tag.name}>
-                  #{tag.name} · {tag.count}
-                </Tag>
-              ))}
-            </div>
-          </div>
+              <div className={styles.dayChipMeta}>
+                {day.posts.length}{" "}
+                {formatRussianPlural(day.posts.length, ["запись", "записи", "записей"])} ·{" "}
+                {day.photos} медиа
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </Card>
@@ -1697,9 +1640,29 @@ function groupPostsByDay(posts: Post[]) {
 }
 
 function getTripDays(posts: Post[]) {
-  const dayKeys = new Set(posts.map((post) => getPostDateKey(post)));
+  if (posts.length === 0) {
+    return 1;
+  }
 
-  return Math.max(dayKeys.size, 1);
+  const dayStarts = posts.map((post) => startOfDay(getPostDate(post)).getTime());
+  const earliestDay = Math.min(...dayStarts);
+  const latestDay = Math.max(...dayStarts);
+
+  return Math.floor((latestDay - earliestDay) / 86400000) + 1;
+}
+
+function getDayAnchorId(dateKey: string) {
+  return `day-${dateKey}`;
+}
+
+function getPostAnchorId(post: Post) {
+  return `post-${post.id}`;
+}
+
+function getPostTeaser(post: Post) {
+  const [firstSentence] = post.body.match(/^[^.!?]+[.!?]?/) ?? [];
+
+  return firstSentence || post.body;
 }
 
 function getMediaBreakdown(posts: Post[]) {
@@ -1963,7 +1926,11 @@ function JournalTimeline({
   return (
     <div className={styles.timelineDays}>
       {dayGroups.map((group) => (
-        <section className={styles.timelineDay} key={group.dateKey}>
+        <section
+          className={styles.timelineDay}
+          id={getDayAnchorId(group.dateKey)}
+          key={group.dateKey}
+        >
           <div className={styles.dayHeader}>
             <div>
               <Text className={styles.cardEyebrow}>День {group.tripDay}</Text>
@@ -1976,59 +1943,75 @@ function JournalTimeline({
           </div>
 
           <Timeline
-            items={group.posts.map((post) => ({
-              color: post.moodColor,
-              content: (
-                <Card className={styles.entryCard}>
-                  <div className={styles.entryHeader}>
-                    <div className={styles.entryTitleGroup}>
-                      <Text type="secondary">{formatPostDate(post)}</Text>
-                      <Title level={4}>{post.title}</Title>
-                    </div>
-                    <Space align="start" className={styles.entryActions}>
-                      <Tag color={post.moodColor}>{post.mood}</Tag>
-                      <Button
-                        aria-label="Открыть запись"
-                        icon={<Maximize2 size={15} />}
-                        onClick={() => onOpen(post)}
-                        size="small"
-                      />
-                      {isAdmin && <EditPostModal post={post} onUpdate={onUpdate} />}
-                    </Space>
-                  </div>
-                  <Paragraph className={styles.entryBody}>{post.body}</Paragraph>
-                  {post.photos.length > 0 && (
-                    <Image.PreviewGroup>
-                      <div className={styles.entryImages}>
-                        {post.photos.map((photo, index) => (
-                          <div
-                            key={`${post.id}-${photo.src}-${index}`}
-                            className={styles.entryMediaItem}
-                          >
-                            <MediaPreview photo={photo} />
-                          </div>
-                        ))}
+            items={group.posts.map((post) => {
+              const previewPhotos = post.photos.slice(0, 4);
+              const hiddenPhotoCount = post.photos.length - previewPhotos.length;
+
+              return {
+                color: post.moodColor,
+                content: (
+                  <Card className={styles.entryCard} id={getPostAnchorId(post)}>
+                    <div className={styles.entryHeader}>
+                      <div className={styles.entryTitleGroup}>
+                        <Text type="secondary">{formatPostDate(post)}</Text>
+                        <Title level={4}>{post.title}</Title>
                       </div>
-                    </Image.PreviewGroup>
-                  )}
-                  <Flex
-                    justify="space-between"
-                    align="center"
-                    className={styles.entryMeta}
-                    style={{ paddingTop: 24 }}
-                  >
-                    <Text type="secondary">
-                      <MapPin size={14} /> {post.locationName}
-                    </Text>
-                    <Space size={6}>
-                      {post.tags.map((tag) => (
-                        <Tag key={tag}>{tag}</Tag>
-                      ))}
-                    </Space>
-                  </Flex>
-                </Card>
-              )
-            }))}
+                      <Space align="start" className={styles.entryActions}>
+                        <Tag color={post.moodColor}>{post.mood}</Tag>
+                        <Button
+                          aria-label="Открыть запись"
+                          icon={<Maximize2 size={15} />}
+                          onClick={() => onOpen(post)}
+                          size="small"
+                        />
+                        {isAdmin && <EditPostModal post={post} onUpdate={onUpdate} />}
+                      </Space>
+                    </div>
+                    <Paragraph className={styles.entryBody}>{post.body}</Paragraph>
+                    {post.photos.length > 0 && (
+                      <div className={styles.entryImages}>
+                        {previewPhotos.map((photo, index) => (
+                          <button
+                            aria-label={`Открыть медиа ${index + 1}`}
+                            className={styles.entryMediaItem}
+                            key={`${post.id}-${photo.src}-${index}`}
+                            onClick={() => onOpen(post, index)}
+                            type="button"
+                          >
+                            <MediaPreview photo={photo} preview={false} />
+                          </button>
+                        ))}
+                        {hiddenPhotoCount > 0 && (
+                          <button
+                            className={`${styles.entryMediaItem} ${styles.entryMoreMedia}`}
+                            onClick={() => onOpen(post, previewPhotos.length)}
+                            type="button"
+                          >
+                            <span>+{hiddenPhotoCount}</span>
+                            <strong>Смотреть все</strong>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    <Flex
+                      justify="space-between"
+                      align="center"
+                      className={styles.entryMeta}
+                      style={{ paddingTop: 24 }}
+                    >
+                      <Text type="secondary">
+                        <MapPin size={14} /> {post.locationName}
+                      </Text>
+                      <Space size={6}>
+                        {post.tags.map((tag) => (
+                          <Tag key={tag}>{tag}</Tag>
+                        ))}
+                      </Space>
+                    </Flex>
+                  </Card>
+                )
+              };
+            })}
           />
         </section>
       ))}

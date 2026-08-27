@@ -841,11 +841,28 @@ export const initialIdeas: Idea[] = [
   }
 ];
 
+function getInitialTripDays(posts: Post[]) {
+  if (posts.length === 0) {
+    return 1;
+  }
+
+  const dayStarts = posts.map((post) => {
+    const date = new Date(post.visitedAtIso ?? "");
+    const safeDate = Number.isNaN(date.getTime()) ? new Date() : date;
+
+    return new Date(safeDate.getFullYear(), safeDate.getMonth(), safeDate.getDate()).getTime();
+  });
+  const earliestDay = Math.min(...dayStarts);
+  const latestDay = Math.max(...dayStarts);
+
+  return Math.floor((latestDay - earliestDay) / 86400000) + 1;
+}
+
 export const tripStats: TripStats = {
   posts: initialPosts.length,
   photos: initialPosts.reduce((sum, post) => sum + post.photos.length, 0),
   places: initialPlaces.length,
-  days: new Set(initialPosts.map((post) => post.visitedAtIso?.slice(0, 10) ?? post.visitedAt)).size,
+  days: getInitialTripDays(initialPosts),
   ideasProgress: 33,
   currentMood: "Аюттхая, храмы и древняя столица Сиама"
 };
