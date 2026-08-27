@@ -167,7 +167,7 @@
 }
 
 .heroOverlay h1,
-.heroOverlay div {
+.heroOverlay :global(.ant-typography) {
   color: #ffffff !important;
 }
 
@@ -178,8 +178,11 @@
   line-height: 1.12 !important;
 }
 
-.heroOverlay div {
+.heroOverlay > :global(.ant-typography) {
   max-width: 860px;
+}
+
+.heroOverlay > :global(.ant-typography:not(h1)) {
   font-size: 18px;
   line-height: 1.55;
 }
@@ -1315,7 +1318,7 @@
     line-height: 1.06 !important;
   }
 
-  .heroOverlay div {
+  .heroOverlay > :global(.ant-typography:not(h1)) {
     font-size: 15px;
     line-height: 1.45;
   }

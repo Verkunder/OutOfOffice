@@ -125,6 +125,7 @@ const dolceVitaSeedKey = "dolce-vita-catamaran-islands";
 const seaDaySeedKey = "full-day-by-the-sea";
 const khaoKheowSeedKey = "khao-kheow-open-zoo";
 const ayutthayaSeedKey = "ayutthaya-historic-city";
+const ayutthayaHeroImage = "/images/day-9/ayutthaya-hero.jpeg";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
 const roomPlaceId = "1e8c887e-81d5-4a4d-837c-068d9eb77253";
@@ -958,8 +959,13 @@ function Hero({ posts }: { posts: Post[] }) {
   const ayutthayaPost = posts.find(
     (post) => (post.seedKey ?? inferSeedKey(post)) === ayutthayaSeedKey
   );
-  const heroImage =
-    ayutthayaPost?.photos.find((photo) => !isVideoMedia(photo))?.src ??
+  const routeSummary = ayutthayaPost
+    ? "Ростов → Москва → Бангкок → Паттайя → Аюттхая"
+    : "Ростов → Москва → Бангкок → Паттайя";
+  const heroAlt = ayutthayaPost
+    ? "Исторические храмы Аюттхаи"
+    : "Кхао Кхео и свежая глава путешествия";
+  const fallbackHeroImage =
     khaoKheowPost?.photos.find((photo) => photo.src.includes("khao-kheow-giraffe-feeding"))?.src ??
     khaoKheowPost?.photos.find((photo) => photo.src.includes("khao-kheow-elephant-feeding"))?.src ??
     seaDayPost?.photos.find((photo) => photo.src.includes("sea-day-flower-hair"))?.src ??
@@ -970,19 +976,20 @@ function Hero({ posts }: { posts: Post[] }) {
     pattayaNightPost?.photos.at(-1)?.src ??
     mayaanaPost?.photos.find((photo) => photo.src.includes("sanctuary-of-truth"))?.src ??
     "/images/day-1/road-to-moscow.jpg";
+  const heroImage = ayutthayaPost ? ayutthayaHeroImage : fallbackHeroImage;
 
   return (
     <section className={styles.hero}>
       <Image
         src={heroImage}
-        alt="Кхао Кхео и свежая глава путешествия"
+        alt={heroAlt}
         preview={false}
         className={styles.heroImage}
       />
       <div className={styles.heroOverlay}>
         <Tag color="green">
-          {tripDays} {formatRussianPlural(tripDays, ["день", "дня", "дней"])} в пути · Ростов →
-          Москва → Бангкок → Паттайя
+          {tripDays} {formatRussianPlural(tripDays, ["день", "дня", "дней"])} в пути ·{" "}
+          {routeSummary}
         </Tag>
         <Title level={1}>
           {ayutthayaPost
