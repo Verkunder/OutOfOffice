@@ -1,6 +1,40 @@
-import type { Idea, Place, Post, TripStats } from "./types";
+import type { Idea, Photo, Place, Post, TripStats } from "./types";
+
+const ayutthayaPhotos: Photo[] = [
+  ...Array.from({ length: 90 }, (_, index) => {
+    const number = String(index + 1).padStart(2, "0");
+
+    return {
+      src: `/images/day-9/ayutthaya-${number}.jpeg`,
+      caption:
+        index < 14
+          ? "Аюттхая: древние храмы, красный кирпич и детали старой столицы"
+          : index < 36
+            ? "Исторический парк между храмами, Буддами и зелеными переходами"
+            : index < 58
+              ? "Переезды, рынки и живые детали вокруг Аюттхаи"
+              : index < 78
+                ? "Вечерние кадры, прогулка и возвращение после большого дня"
+                : "Финальные детали поездки в древнюю столицу Сиама"
+    };
+  })
+];
 
 export const initialPosts: Post[] = [
+  {
+    id: "2f9b0d5d-7e8d-4f15-95b4-cda41c2a0c71",
+    seedKey: "ayutthaya-historic-city",
+    title: "Аюттхая: древняя столица Сиама",
+    body:
+      "Сегодня сделали большую историческую вылазку в Аюттхаю - город, который в 1350 году стал второй столицей Сиама после Сукхотая. Несколько веков это был один из главных торговых и политических центров региона, пока в 1767 году город не разрушила бирманская армия. Сейчас исторический парк Аюттхаи входит в список Всемирного наследия UNESCO: руины храмов, ступы, красный кирпич, статуи Будды и ощущение, что идешь не просто по достопримечательностям, а по слоям старой столицы. Маршрут получился насыщенный: храмы, переезды между локациями, рынки, много деталей в камне и золоте, а еще живые кадры города, который до сих пор дышит историей.",
+    mood: "исторический день",
+    moodColor: "gold",
+    locationName: "Historic City of Ayutthaya, Phra Nakhon Si Ayutthaya",
+    visitedAt: "27 августа",
+    visitedAtIso: "2026-08-27T18:30:00+07:00",
+    tags: ["аюттхая", "unesco", "сиам", "храмы", "история", "тайланд", "древняя столица"],
+    photos: ayutthayaPhotos
+  },
   {
     id: "0662d537-84b6-4cf6-afa0-0ebdb90470c8",
     seedKey: "khao-kheow-open-zoo",
@@ -756,6 +790,14 @@ export const initialPosts: Post[] = [
 
 export const initialPlaces: Place[] = [
   {
+    id: "7aa1d2c5-0e56-4f5b-a7f0-0bd543c20157",
+    name: "Historic City of Ayutthaya",
+    category: "исторический парк",
+    rating: 5,
+    notes:
+      "Древняя столица Сиама и объект Всемирного наследия UNESCO: храмы, ступы, красный кирпич и большой день среди истории."
+  },
+  {
     id: "ca34850c-9c36-4d93-9f4d-9276c14756fc",
     name: "Green Drive",
     category: "зарядка",
@@ -805,5 +847,5 @@ export const tripStats: TripStats = {
   places: initialPlaces.length,
   days: new Set(initialPosts.map((post) => post.visitedAtIso?.slice(0, 10) ?? post.visitedAt)).size,
   ideasProgress: 33,
-  currentMood: "Местный ресторан, рынок и вечерняя Паттайя"
+  currentMood: "Аюттхая, храмы и древняя столица Сиама"
 };

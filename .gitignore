@@ -4,3 +4,4 @@ out
 .env
 .env*.local
 *.tsbuildinfo
+public/videos/day-9/*.mov

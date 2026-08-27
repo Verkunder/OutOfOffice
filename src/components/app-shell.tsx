@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   BookOpen,
   Camera,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   Cloud,
   CloudOff,
@@ -14,7 +16,9 @@ import {
   Pencil,
   Lightbulb,
   MapPin,
+  Maximize2,
   Plus,
+  Search,
   Sparkles,
   Waves,
   X
@@ -70,6 +74,7 @@ type AppShellProps = {
 
 type ViewKey = "journal" | "photos" | "places" | "ideas";
 type SyncStatus = "local" | "connecting" | "cloud" | "error";
+type PhotoFilter = "all" | "photos" | "videos";
 
 const viewOptions: Array<{ label: string; value: ViewKey }> = [
   { label: "Лента", value: "journal" },
@@ -102,6 +107,7 @@ const marketEveningPostId = "9e09ea09-83c5-4eb5-a480-440723b8c5ae";
 const dolceVitaPostId = "b53b9ce0-e423-4665-9c5c-8362580b5e44";
 const seaDayPostId = "bd0c0fc6-73d1-4c0a-b812-5df1f0f717fc";
 const khaoKheowPostId = "0662d537-84b6-4cf6-afa0-0ebdb90470c8";
+const ayutthayaPostId = "2f9b0d5d-7e8d-4f15-95b4-cda41c2a0c71";
 const rostovSeedKey = "rostov-green-drive";
 const moscowSeedKey = "moscow-arrival";
 const roomSeedKey = "technopark-yes-apart";
@@ -118,9 +124,11 @@ const marketEveningSeedKey = "local-restaurant-market-evening";
 const dolceVitaSeedKey = "dolce-vita-catamaran-islands";
 const seaDaySeedKey = "full-day-by-the-sea";
 const khaoKheowSeedKey = "khao-kheow-open-zoo";
+const ayutthayaSeedKey = "ayutthaya-historic-city";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
 const roomPlaceId = "1e8c887e-81d5-4a4d-837c-068d9eb77253";
+const ayutthayaPlaceId = "7aa1d2c5-0e56-4f5b-a7f0-0bd543c20157";
 
 export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
   const [activeView, setActiveView] = useState<ViewKey>("journal");
@@ -132,6 +140,22 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("local");
   const [syncMessage, setSyncMessage] = useState("Публичный просмотр");
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const selectedPost = useMemo(
+    () => journalPosts.find((post) => post.id === selectedPostId) ?? null,
+    [journalPosts, selectedPostId]
+  );
+
+  const handleOpenPost = (post: Post, photoIndex = 0) => {
+    setSelectedPostId(post.id);
+    setSelectedPhotoIndex(photoIndex);
+  };
+
+  const handleClosePost = () => {
+    setSelectedPostId(null);
+    setSelectedPhotoIndex(0);
+  };
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -353,6 +377,7 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
                 {activeView === "journal" && (
                   <>
                     <Hero posts={journalPosts} />
+                    <TripNavigator posts={journalPosts} />
                     <Card className={styles.sectionCard}>
                       <SectionHeader
                         title="Таймлайн"
@@ -360,6 +385,7 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
                       />
                       <JournalTimeline
                         isAdmin={isAdmin}
+                        onOpen={handleOpenPost}
                         posts={journalPosts}
                         onUpdate={(updatedPost) =>
                           setJournalPosts((currentPosts) =>
@@ -379,9 +405,9 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
                   <Card className={styles.sectionCard}>
                     <SectionHeader
                       title="Фотоистории"
-                      subtitle="Все кадры первого дня в одном месте."
+                      subtitle="Все фото и видео по главам поездки: дорога, Паттайя, острова, море и новые дни."
                     />
-                    <PhotoGrid posts={journalPosts} />
+                    <PhotoGrid posts={journalPosts} onOpen={handleOpenPost} />
                   </Card>
                 )}
 
@@ -454,6 +480,12 @@ export function AppShell({ posts, places, ideas, stats }: AppShellProps) {
               </div>
             </Col>
           </Row>
+          <PostDetailsModal
+            onClose={handleClosePost}
+            onPhotoChange={setSelectedPhotoIndex}
+            post={selectedPost}
+            selectedPhotoIndex={selectedPhotoIndex}
+          />
         </Content>
       </Layout>
     </Layout>
@@ -1252,6 +1284,149 @@ function SectionHeader({
   );
 }
 
+function TripNavigator({ posts }: { posts: Post[] }) {
+  const sortedPosts = sortPostsNewestFirst(posts);
+  const dayGroups = groupPostsByDay(sortedPosts);
+  const media = getMediaBreakdown(sortedPosts);
+  const locations = getLocationSummaries(sortedPosts);
+  const tags = getTagSummaries(sortedPosts);
+  const latestPost = sortedPosts[0];
+  const newestDays = dayGroups.slice(0, 5);
+
+  return (
+    <Card className={`${styles.sectionCard} ${styles.navigatorCard}`}>
+      <SectionHeader
+        title="Содержание поездки"
+        subtitle="Живой каркас дневника: дни, места, темы и новые главы будут пополняться вместе с маршрутом."
+        action={
+          latestPost ? (
+            <Tag className={styles.navigatorLatestTag} color={latestPost.moodColor}>
+              Последняя глава: {latestPost.title}
+            </Tag>
+          ) : undefined
+        }
+      />
+
+      <div className={styles.navigatorMetrics}>
+        <div className={styles.navigatorMetric} data-tone="sun">
+          <div className={styles.navigatorMetricHead}>
+            <span>Дней в дневнике</span>
+            <span className={styles.navigatorMetricIcon}>
+              <Compass size={17} />
+            </span>
+          </div>
+          <strong className={styles.navigatorMetricValue}>{getTripDays(sortedPosts)}</strong>
+          <span className={styles.navigatorMetricText}>
+            Маршрут не закрыт: новые даты просто появятся здесь.
+          </span>
+        </div>
+
+        <div className={styles.navigatorMetric} data-tone="sea">
+          <div className={styles.navigatorMetricHead}>
+            <span>Медиа</span>
+            <span className={styles.navigatorMetricIcon}>
+              <Camera size={17} />
+            </span>
+          </div>
+          <strong className={styles.navigatorMetricValue}>{media.total}</strong>
+          <span className={styles.navigatorMetricText}>
+            {media.photos} {formatRussianPlural(media.photos, ["фото", "фото", "фото"])} и{" "}
+            {media.videos} видео
+          </span>
+        </div>
+
+        <div className={styles.navigatorMetric} data-tone="leaf">
+          <div className={styles.navigatorMetricHead}>
+            <span>Локации</span>
+            <span className={styles.navigatorMetricIcon}>
+              <MapPin size={17} />
+            </span>
+          </div>
+          <strong className={styles.navigatorMetricValue}>{locations.length}</strong>
+          <span className={styles.navigatorMetricText}>
+            От Ростова и Москвы до Паттайи, островов и зоопарка.
+          </span>
+        </div>
+
+        <div className={styles.navigatorMetric} data-tone="ink">
+          <div className={styles.navigatorMetricHead}>
+            <span>Темы</span>
+            <span className={styles.navigatorMetricIcon}>
+              <Sparkles size={17} />
+            </span>
+          </div>
+          <strong className={styles.navigatorMetricValue}>{tags.length}</strong>
+          <span className={styles.navigatorMetricText}>
+            Море, еда, животные, дорога и все новые поводы.
+          </span>
+        </div>
+      </div>
+
+      <div className={styles.navigatorBody}>
+        <div className={styles.navigatorPanel}>
+          <div className={styles.navigatorPanelTitle}>
+            <BookOpen size={18} />
+            <span>Последние дни</span>
+          </div>
+          <div className={styles.dayRail}>
+            {newestDays.map((day) => (
+              <div className={styles.dayChip} key={day.dateKey}>
+                <span className={styles.dayChipNumber}>Д{day.tripDay}</span>
+                <div className={styles.dayChipTitle}>
+                  <strong>{day.title}</strong>
+                  <span>{day.posts.map((post) => post.title).slice(0, 2).join(" · ")}</span>
+                </div>
+                <div className={styles.dayChipMeta}>
+                  {day.posts.length}{" "}
+                  {formatRussianPlural(day.posts.length, ["запись", "записи", "записей"])} ·{" "}
+                  {day.photos} медиа
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.navigatorAside}>
+          <div className={styles.navigatorPanel}>
+            <div className={styles.navigatorPanelTitle}>
+              <MapPin size={18} />
+              <span>Локации</span>
+            </div>
+            <div className={styles.locationList}>
+              {locations.slice(0, 5).map((location) => (
+                <div className={styles.locationItem} key={location.name}>
+                  <div>
+                    <strong>{location.name}</strong>
+                    <span>
+                      {location.posts}{" "}
+                      {formatRussianPlural(location.posts, ["запись", "записи", "записей"])}
+                    </span>
+                  </div>
+                  <Tag color="green">{location.media} медиа</Tag>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.navigatorPanel}>
+            <div className={styles.navigatorPanelTitle}>
+              <Sparkles size={18} />
+              <span>Темы</span>
+            </div>
+            <div className={styles.tagCloud}>
+              {tags.slice(0, 12).map((tag) => (
+                <Tag key={tag.name}>
+                  #{tag.name} · {tag.count}
+                </Tag>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 type NewPostFormValues = {
   title: string;
   visitedAt: Dayjs;
@@ -1474,6 +1649,68 @@ function getTripDays(posts: Post[]) {
   return Math.max(dayKeys.size, 1);
 }
 
+function getMediaBreakdown(posts: Post[]) {
+  return posts.reduce(
+    (acc, post) => {
+      post.photos.forEach((photo) => {
+        acc.total += 1;
+
+        if (isVideoMedia(photo)) {
+          acc.videos += 1;
+        } else {
+          acc.photos += 1;
+        }
+      });
+
+      return acc;
+    },
+    { total: 0, photos: 0, videos: 0 }
+  );
+}
+
+function getLocationSummaries(posts: Post[]) {
+  const locations = new Map<string, { name: string; posts: number; media: number }>();
+
+  posts.forEach((post) => {
+    const name = post.locationName.trim();
+
+    if (!name) {
+      return;
+    }
+
+    const existing = locations.get(name) ?? { name, posts: 0, media: 0 };
+    existing.posts += 1;
+    existing.media += post.photos.length;
+    locations.set(name, existing);
+  });
+
+  return Array.from(locations.values()).sort(
+    (a, b) => b.posts - a.posts || b.media - a.media || a.name.localeCompare(b.name, "ru")
+  );
+}
+
+function getTagSummaries(posts: Post[]) {
+  const tags = new Map<string, { name: string; count: number }>();
+
+  posts.forEach((post) => {
+    post.tags.forEach((rawTag) => {
+      const name = rawTag.trim();
+
+      if (!name) {
+        return;
+      }
+
+      const existing = tags.get(name) ?? { name, count: 0 };
+      existing.count += 1;
+      tags.set(name, existing);
+    });
+  });
+
+  return Array.from(tags.values()).sort(
+    (a, b) => b.count - a.count || a.name.localeCompare(b.name, "ru")
+  );
+}
+
 function getPostDateKey(post: Post) {
   const date = getPostDate(post);
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -1659,10 +1896,12 @@ function NewIdeaModal({ onCreate }: { onCreate: (idea: Idea) => void }) {
 
 function JournalTimeline({
   isAdmin,
+  onOpen,
   posts,
   onUpdate
 }: {
   isAdmin: boolean;
+  onOpen: (post: Post, photoIndex?: number) => void;
   posts: Post[];
   onUpdate: (post: Post) => void;
 }) {
@@ -1695,6 +1934,12 @@ function JournalTimeline({
                     </div>
                     <Space align="start" className={styles.entryActions}>
                       <Tag color={post.moodColor}>{post.mood}</Tag>
+                      <Button
+                        aria-label="Открыть запись"
+                        icon={<Maximize2 size={15} />}
+                        onClick={() => onOpen(post)}
+                        size="small"
+                      />
                       {isAdmin && <EditPostModal post={post} onUpdate={onUpdate} />}
                     </Space>
                   </div>
@@ -1735,6 +1980,122 @@ function JournalTimeline({
         </section>
       ))}
     </div>
+  );
+}
+
+function PostDetailsModal({
+  onClose,
+  onPhotoChange,
+  post,
+  selectedPhotoIndex
+}: {
+  onClose: () => void;
+  onPhotoChange: (index: number) => void;
+  post: Post | null;
+  selectedPhotoIndex: number;
+}) {
+  const safePhotoIndex = post?.photos.length
+    ? Math.min(selectedPhotoIndex, post.photos.length - 1)
+    : 0;
+  const currentPhoto = post?.photos[safePhotoIndex];
+
+  const handlePrevious = () => {
+    if (!post?.photos.length) {
+      return;
+    }
+
+    onPhotoChange((safePhotoIndex - 1 + post.photos.length) % post.photos.length);
+  };
+
+  const handleNext = () => {
+    if (!post?.photos.length) {
+      return;
+    }
+
+    onPhotoChange((safePhotoIndex + 1) % post.photos.length);
+  };
+
+  return (
+    <Modal
+      className={styles.postDetailsModal}
+      footer={null}
+      onCancel={onClose}
+      open={Boolean(post)}
+      title={post ? "История дня" : undefined}
+      width={1080}
+    >
+      {post && (
+        <div className={styles.postDetails}>
+          <div className={styles.postDetailsLayout}>
+            <section className={styles.postDetailsMediaPanel}>
+              <div className={styles.postDetailsMedia}>
+                {currentPhoto ? (
+                  <MediaPreview photo={currentPhoto} />
+                ) : (
+                  <div className={styles.postDetailsEmpty}>
+                    <Camera size={22} />
+                    <Text type="secondary">К этой записи пока нет медиа</Text>
+                  </div>
+                )}
+              </div>
+              {post.photos.length > 1 && (
+                <Flex
+                  align="center"
+                  className={styles.postDetailsControls}
+                  justify="space-between"
+                >
+                  <Button icon={<ChevronLeft size={16} />} onClick={handlePrevious}>
+                    Назад
+                  </Button>
+                  <Text type="secondary">
+                    {safePhotoIndex + 1} из {post.photos.length}
+                  </Text>
+                  <Button icon={<ChevronRight size={16} />} onClick={handleNext}>
+                    Дальше
+                  </Button>
+                </Flex>
+              )}
+            </section>
+
+            <aside className={styles.postDetailsAside}>
+              <Text className={styles.cardEyebrow}>{formatPostDate(post)}</Text>
+              <Title level={3}>{post.title}</Title>
+              <Paragraph>{post.body}</Paragraph>
+              <Text className={styles.postDetailsLocation}>
+                <MapPin size={14} /> {post.locationName}
+              </Text>
+              <Space className={styles.postDetailsTags} size={6} wrap>
+                <Tag color={post.moodColor}>{post.mood}</Tag>
+                {post.tags.map((tag) => (
+                  <Tag key={tag}>{tag}</Tag>
+                ))}
+              </Space>
+            </aside>
+          </div>
+
+          {post.photos.length > 1 && (
+            <div className={styles.postDetailsThumbs}>
+              {post.photos.map((photo, index) => (
+                <button
+                  aria-label={`Открыть медиа ${index + 1}`}
+                  className={styles.postDetailsThumb}
+                  data-active={index === safePhotoIndex}
+                  key={`${post.id}-details-${photo.src}-${index}`}
+                  onClick={() => onPhotoChange(index)}
+                  type="button"
+                >
+                  {isVideoMedia(photo) ? (
+                    <video muted playsInline preload="metadata" src={photo.src} />
+                  ) : (
+                    <Image alt={photo.caption} preview={false} src={photo.src} />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Modal>
   );
 }
 
@@ -1911,22 +2272,143 @@ function EditPostModal({
   );
 }
 
-function PhotoGrid({ posts }: { posts: Post[] }) {
-  const photos = posts.flatMap((post) =>
-    post.photos.map((photo) => ({ ...photo, postTitle: post.title }))
+function PhotoGrid({
+  onOpen,
+  posts
+}: {
+  onOpen: (post: Post, photoIndex?: number) => void;
+  posts: Post[];
+}) {
+  const [mediaFilter, setMediaFilter] = useState<PhotoFilter>("all");
+  const [activeTag, setActiveTag] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const mediaItems = useMemo(
+    () =>
+      sortPostsNewestFirst(posts).flatMap((post) =>
+        post.photos.map((photo, index) => ({
+          index,
+          isVideo: isVideoMedia(photo),
+          photo,
+          post
+        }))
+      ),
+    [posts]
+  );
+  const tagSummaries = useMemo(() => getTagSummaries(posts), [posts]);
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const photoCount = mediaItems.filter((item) => !item.isVideo).length;
+  const videoCount = mediaItems.length - photoCount;
+  const activeTagLabel = activeTag === "all" ? "все темы" : activeTag;
+
+  const filteredItems = useMemo(
+    () =>
+      mediaItems.filter(({ isVideo, photo, post }) => {
+        if (mediaFilter === "photos" && isVideo) {
+          return false;
+        }
+
+        if (mediaFilter === "videos" && !isVideo) {
+          return false;
+        }
+
+        if (activeTag !== "all" && !post.tags.includes(activeTag)) {
+          return false;
+        }
+
+        if (!normalizedQuery) {
+          return true;
+        }
+
+        return [photo.caption, post.title, post.body, post.locationName, ...post.tags]
+          .join(" ")
+          .toLowerCase()
+          .includes(normalizedQuery);
+      }),
+    [activeTag, mediaFilter, mediaItems, normalizedQuery]
   );
 
+  const resetFilters = () => {
+    setMediaFilter("all");
+    setActiveTag("all");
+    setSearchQuery("");
+  };
+
   return (
-    <Row gutter={[12, 12]}>
-      {photos.map((photo, index) => (
-        <Col xs={12} md={8} key={`${photo.postTitle}-${photo.src}-${index}`}>
-          <Card className={styles.photoCard} cover={<MediaPreview photo={photo} />}>
-            <Text strong>{photo.caption}</Text>
-            <Text type="secondary">{photo.postTitle}</Text>
-          </Card>
-        </Col>
-      ))}
-    </Row>
+    <>
+      <div className={styles.photoTools}>
+        <Input
+          allowClear
+          className={styles.photoSearch}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder="Найти море, зоопарк, ВДНХ..."
+          prefix={<Search size={16} />}
+          value={searchQuery}
+        />
+        <Segmented
+          onChange={(value) => setMediaFilter(value as PhotoFilter)}
+          options={[
+            { label: `Все ${mediaItems.length}`, value: "all" },
+            { label: `Фото ${photoCount}`, value: "photos" },
+            { label: `Видео ${videoCount}`, value: "videos" }
+          ]}
+          value={mediaFilter}
+        />
+      </div>
+
+      <div className={styles.photoTagStrip}>
+        <Tag.CheckableTag checked={activeTag === "all"} onChange={() => setActiveTag("all")}>
+          Все темы
+        </Tag.CheckableTag>
+        {tagSummaries.slice(0, 16).map((tag) => (
+          <Tag.CheckableTag
+            checked={activeTag === tag.name}
+            key={tag.name}
+            onChange={() => setActiveTag(tag.name)}
+          >
+            {tag.name} {tag.count}
+          </Tag.CheckableTag>
+        ))}
+      </div>
+
+      <div className={styles.photoSummary}>
+        <Text type="secondary">
+          Показано {filteredItems.length} из {mediaItems.length}: {activeTagLabel}
+        </Text>
+        {(mediaFilter !== "all" || activeTag !== "all" || searchQuery) && (
+          <Button size="small" onClick={resetFilters}>
+            Сбросить
+          </Button>
+        )}
+      </div>
+
+      {filteredItems.length > 0 ? (
+        <Row gutter={[12, 12]}>
+          {filteredItems.map(({ index, photo, post }) => (
+            <Col xs={12} md={8} key={`${post.id}-${photo.src}-${index}`}>
+              <Card className={styles.photoCard} cover={<MediaPreview photo={photo} />}>
+                <Text strong>{photo.caption}</Text>
+                <Text type="secondary">{post.title}</Text>
+                <Button
+                  className={styles.photoOpenButton}
+                  icon={<Maximize2 size={14} />}
+                  onClick={() => onOpen(post, index)}
+                  size="small"
+                  type="text"
+                >
+                  Открыть
+                </Button>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      ) : (
+        <div className={styles.photoEmpty}>
+          <Text type="secondary">Ничего не нашлось, фильтры слишком строгие.</Text>
+          <Button onClick={resetFilters}>Показать все</Button>
+        </div>
+      )}
+    </>
   );
 }
 
