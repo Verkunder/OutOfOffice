@@ -28,6 +28,7 @@ import {
   Badge,
   Button,
   Card,
+  Carousel,
   Col,
   DatePicker,
   Flex,
@@ -2078,6 +2079,25 @@ function PostDetailsModal({
                   </div>
                 )}
               </div>
+              {post.photos.length > 0 && (
+                <Carousel
+                  afterChange={onPhotoChange}
+                  className={styles.postDetailsCarousel}
+                  dots
+                  infinite={post.photos.length > 1}
+                  initialSlide={safePhotoIndex}
+                  key={`${post.id}-${safePhotoIndex}`}
+                >
+                  {post.photos.map((photo, index) => (
+                    <div
+                      className={styles.postDetailsSlide}
+                      key={`${post.id}-slide-${photo.src}-${index}`}
+                    >
+                      <MediaPreview photo={photo} preview={false} />
+                    </div>
+                  ))}
+                </Carousel>
+              )}
               {post.photos.length > 1 && (
                 <Flex
                   align="center"

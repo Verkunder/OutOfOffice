@@ -975,6 +975,33 @@
   border-radius: 10px;
 }
 
+.postDetailsCarousel {
+  display: none;
+}
+
+.postDetailsSlide {
+  height: 64vh;
+  min-height: 420px;
+  overflow: hidden;
+  background: #101820;
+  border-radius: 10px;
+}
+
+.postDetailsSlide :global(.ant-image) {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.postDetailsSlide :global(.ant-image-img),
+.postDetailsSlide .mediaVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .postDetailsEmpty {
   display: flex;
   min-height: 320px;
@@ -1633,13 +1660,16 @@
   }
 
   .postDetailsMedia {
-    min-height: 260px;
-    max-height: 58vh;
+    display: none;
   }
 
-  .postDetailsMedia :global(.ant-image-img),
-  .postDetailsMedia .mediaVideo {
-    max-height: 58vh;
+  .postDetailsCarousel {
+    display: block;
+  }
+
+  .postDetailsSlide {
+    height: min(62vh, 520px);
+    min-height: 360px;
   }
 
   .postDetailsAside {
@@ -1653,9 +1683,18 @@
   }
 
   .postDetailsThumbs {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    max-height: 180px;
+    display: flex;
+    gap: 8px;
+    max-height: none;
     padding: 12px 14px 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+  }
+
+  .postDetailsThumb {
+    flex: 0 0 64px;
+    scroll-snap-align: start;
   }
 
   .placesGrid {
