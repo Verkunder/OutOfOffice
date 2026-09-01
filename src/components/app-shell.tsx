@@ -109,6 +109,10 @@ const dolceVitaPostId = "b53b9ce0-e423-4665-9c5c-8362580b5e44";
 const seaDayPostId = "bd0c0fc6-73d1-4c0a-b812-5df1f0f717fc";
 const khaoKheowPostId = "0662d537-84b6-4cf6-afa0-0ebdb90470c8";
 const ayutthayaPostId = "2f9b0d5d-7e8d-4f15-95b4-cda41c2a0c71";
+const terminal21FirstPostId = "9ffca100-b6b6-4816-b07e-3fb7779a8402";
+const terminal21SecondPostId = "8f466c9a-7fb1-40b4-90e6-f24f70cfbf46";
+const show99PostId = "951b3081-988f-4885-a4a6-2142a1f8e9bb";
+const returnFlightPostId = "75be3c51-1836-492b-b18a-42b542d4eb96";
 const rostovSeedKey = "rostov-green-drive";
 const moscowSeedKey = "moscow-arrival";
 const roomSeedKey = "technopark-yes-apart";
@@ -126,6 +130,10 @@ const dolceVitaSeedKey = "dolce-vita-catamaran-islands";
 const seaDaySeedKey = "full-day-by-the-sea";
 const khaoKheowSeedKey = "khao-kheow-open-zoo";
 const ayutthayaSeedKey = "ayutthaya-historic-city";
+const terminal21FirstSeedKey = "terminal-21-pattaya-first-walk";
+const terminal21SecondSeedKey = "terminal-21-pattaya-second-walk";
+const show99SeedKey = "pattaya-show-99";
+const returnFlightSeedKey = "bangkok-moscow-flight-tesla-road";
 const ayutthayaHeroImage = "/images/day-9/ayutthaya-hero.jpeg";
 const greenDrivePlaceId = "ca34850c-9c36-4d93-9f4d-9276c14756fc";
 const moscowPlaceId = "ae277e4b-5b35-43b1-aec1-0b8867e28b20";
@@ -715,6 +723,22 @@ function normalizeStarterPosts(posts: Post[], fallbackPosts: Post[]) {
         : { ...basePost, seedKey: ayutthayaSeedKey };
     }
 
+    if (post.id === terminal21FirstPostId || inferredSeedKey === terminal21FirstSeedKey) {
+      return { ...basePost, seedKey: terminal21FirstSeedKey };
+    }
+
+    if (post.id === terminal21SecondPostId || inferredSeedKey === terminal21SecondSeedKey) {
+      return { ...basePost, seedKey: terminal21SecondSeedKey };
+    }
+
+    if (post.id === show99PostId || inferredSeedKey === show99SeedKey) {
+      return { ...basePost, seedKey: show99SeedKey };
+    }
+
+    if (post.id === returnFlightPostId || inferredSeedKey === returnFlightSeedKey) {
+      return { ...basePost, seedKey: returnFlightSeedKey };
+    }
+
     return basePost;
   });
 
@@ -867,6 +891,34 @@ function inferSeedKey(post: Post) {
     return khaoKheowSeedKey;
   }
 
+  if (
+    post.id === terminal21FirstPostId ||
+    photoSources.includes("/images/day-10/terminal-21-gate2-high-five.jpeg") ||
+    photoSources.includes("/images/day-10/terminal-21-plane-couple.jpeg")
+  ) {
+    return terminal21FirstSeedKey;
+  }
+
+  if (
+    post.id === terminal21SecondPostId ||
+    photoSources.includes("/images/day-11/terminal-21-paris-tower.jpeg") ||
+    photoSources.includes("/images/day-11/terminal-21-japan-masks.jpeg")
+  ) {
+    return terminal21SecondSeedKey;
+  }
+
+  if (post.id === show99PostId || post.title.toLowerCase().includes("шоу 99")) {
+    return show99SeedKey;
+  }
+
+  if (
+    post.id === returnFlightPostId ||
+    photoSources.includes("/images/day-13/bangkok-moscow-seat-selfie.jpeg") ||
+    photoSources.includes("/images/day-13/flight-map-near-samara.jpeg")
+  ) {
+    return returnFlightSeedKey;
+  }
+
   if (photoSources.includes("/images/day-1/green-drive.jpg")) {
     return rostovSeedKey;
   }
@@ -960,13 +1012,29 @@ function Hero({ posts }: { posts: Post[] }) {
   const ayutthayaPost = posts.find(
     (post) => (post.seedKey ?? inferSeedKey(post)) === ayutthayaSeedKey
   );
-  const routeSummary = ayutthayaPost
-    ? "Ростов → Москва → Бангкок → Паттайя → Аюттхая"
-    : "Ростов → Москва → Бангкок → Паттайя";
-  const heroAlt = ayutthayaPost
+  const terminal21SecondPost = posts.find(
+    (post) => (post.seedKey ?? inferSeedKey(post)) === terminal21SecondSeedKey
+  );
+  const returnFlightPost = posts.find(
+    (post) => (post.seedKey ?? inferSeedKey(post)) === returnFlightSeedKey
+  );
+  const routeSummary = returnFlightPost
+    ? "Ростов → Москва → Бангкок → Паттайя → Москва → Ростов"
+    : ayutthayaPost
+      ? "Ростов → Москва → Бангкок → Паттайя → Аюттхая"
+      : "Ростов → Москва → Бангкок → Паттайя";
+  const heroAlt = returnFlightPost
+    ? "Возвращение в Москву после перелета"
+    : ayutthayaPost
     ? "Исторические храмы Аюттхаи"
     : "Кхао Кхео и свежая глава путешествия";
   const fallbackHeroImage =
+    returnFlightPost?.photos.find((photo) => photo.src.includes("moscow-city-night-arrival"))
+      ?.src ??
+    returnFlightPost?.photos.find((photo) => photo.src.includes("bangkok-moscow-seat-selfie"))
+      ?.src ??
+    terminal21SecondPost?.photos.find((photo) => photo.src.includes("terminal-21-paris-tower"))
+      ?.src ??
     khaoKheowPost?.photos.find((photo) => photo.src.includes("khao-kheow-giraffe-feeding"))?.src ??
     khaoKheowPost?.photos.find((photo) => photo.src.includes("khao-kheow-elephant-feeding"))?.src ??
     seaDayPost?.photos.find((photo) => photo.src.includes("sea-day-flower-hair"))?.src ??
@@ -977,7 +1045,11 @@ function Hero({ posts }: { posts: Post[] }) {
     pattayaNightPost?.photos.at(-1)?.src ??
     mayaanaPost?.photos.find((photo) => photo.src.includes("sanctuary-of-truth"))?.src ??
     "/images/day-1/road-to-moscow.jpg";
-  const heroImage = ayutthayaPost ? ayutthayaHeroImage : fallbackHeroImage;
+  const heroImage = returnFlightPost
+    ? fallbackHeroImage
+    : ayutthayaPost
+      ? ayutthayaHeroImage
+      : fallbackHeroImage;
 
   return (
     <section className={styles.hero}>
@@ -993,8 +1065,12 @@ function Hero({ posts }: { posts: Post[] }) {
           {routeSummary}
         </Tag>
         <Title level={1}>
-          {ayutthayaPost
+          {returnFlightPost
+            ? "Возвращение"
+            : ayutthayaPost
             ? "Аюттхая"
+            : terminal21SecondPost
+            ? "Terminal 21"
             : khaoKheowPost
             ? "Кхао Кхео"
             : seaDayPost
@@ -1012,8 +1088,12 @@ function Hero({ posts }: { posts: Post[] }) {
               : "Маршрут набирает главы"}
         </Title>
         <Paragraph>
-          {ayutthayaPost
+          {returnFlightPost
+            ? "Тайская часть закончилась рейсом Бангкок -> Москва, но маршрут еще живой: впереди дорога из Москвы до Ростова-на-Дону на Tesla Model 3 Анастасии."
+            : ayutthayaPost
             ? "Древняя столица Сиама: руины храмов, красный кирпич, статуи Будды, рынки и большой исторический день между слоями старого города."
+            : terminal21SecondPost
+            ? "Terminal 21 Pattaya оказался отдельным городом внутри молла: аэропортовая тема, этажи-страны, башня в атриуме, японские декорации, магазины и вечерние детали вокруг."
             : khaoKheowPost
             ? "Открытый зоопарк под Сирачей: гольф-кар, жирафы, слоны, носорог, птицы, обезьяны и большой зеленый день между Паттайей и Бангкоком."
             : seaDayPost
@@ -1032,7 +1112,9 @@ function Hero({ posts }: { posts: Post[] }) {
               ? `Сейчас в дневнике главное: ${latestPost.title.toLowerCase()}.`
             : "Ночная зарядка, дорога, московские виды и подготовка к вылету собираются в живой дневник."}
         </Paragraph>
-        {ayutthayaPost ? (
+        {returnFlightPost ? (
+          <ReturnFlightCard />
+        ) : ayutthayaPost ? (
           <AyutthayaCard />
         ) : khaoKheowPost ? (
           <KhaoKheowCard />
@@ -1055,6 +1137,32 @@ function Hero({ posts }: { posts: Post[] }) {
         )}
       </div>
     </section>
+  );
+}
+
+function ReturnFlightCard() {
+  return (
+    <div className={styles.flightPlan}>
+      <span className={styles.flightIcon}>
+        <Plane size={18} />
+      </span>
+      <div>
+        <Text className={styles.flightLabel}>Возвращение</Text>
+        <Text className={styles.flightRoute}>{"Бангкок -> Москва -> Ростов-на-Дону"}</Text>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Вылет</Text>
+        <strong>13:20 BKK</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Прилет</Text>
+        <strong>19:20 МСК</strong>
+      </div>
+      <div className={styles.flightMetric}>
+        <Text>Дальше</Text>
+        <strong>Tesla 3</strong>
+      </div>
+    </div>
   );
 }
 

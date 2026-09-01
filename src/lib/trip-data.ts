@@ -22,6 +22,150 @@ const ayutthayaPhotos: Photo[] = [
 
 export const initialPosts: Post[] = [
   {
+    id: "75be3c51-1836-492b-b18a-42b542d4eb96",
+    seedKey: "bangkok-moscow-flight-tesla-road",
+    title: "Бангкок -> Москва: домой через небо и дальше на Tesla",
+    body:
+      "31 августа закрыли тайскую часть маршрута перелетом Бангкок -> Москва: вылетели в 13:20 по Бангкоку и прилетели в 19:20 по Москве. Внутри был классический финал отпуска: перекус в аэропорту, самолет у гейта, селфи в салоне, карта полета над Самарой, попытки устроиться поудобнее и вечерняя Москва за окном уже после посадки. Но точка еще не поставлена: впереди нас ждет дорога из Москвы до Ростова-на-Дону на Tesla Model 3 Анастасии - той самой девушки со всех фото.",
+    mood: "возвращение",
+    moodColor: "blue",
+    locationName: "Бангкок -> Москва -> Ростов-на-Дону",
+    visitedAt: "31 августа, 19:20",
+    visitedAtIso: "2026-08-31T19:20:00+03:00",
+    tags: ["перелет", "бангкок", "москва", "ростов-на-дону", "tesla model 3", "анастасия"],
+    photos: [
+      {
+        src: "/images/day-13/plane-at-bangkok-gate.jpeg",
+        caption: "Борт у гейта в Бангкоке перед вылетом"
+      },
+      {
+        src: "/images/day-13/plane-engine-jetbridge.jpeg",
+        caption: "Последние минуты у телетрапа"
+      },
+      {
+        src: "/images/day-13/bangkok-airport-burger-king.jpeg",
+        caption: "Аэропортовый перекус перед длинной дорогой"
+      },
+      {
+        src: "/images/day-13/bangkok-moscow-seat-selfie.jpeg",
+        caption: "В салоне на рейсе до Москвы"
+      },
+      {
+        src: "/images/day-13/flight-pillow-creature.jpeg",
+        caption: "Попытка устроиться удобно в самолете"
+      },
+      {
+        src: "/images/day-13/flight-map-near-samara.jpeg",
+        caption: "Карта полета уже над Россией"
+      },
+      {
+        src: "/images/day-13/moscow-road-bus-selfie.jpeg",
+        caption: "После посадки и снова в дорожном режиме"
+      },
+      {
+        src: "/images/day-13/moscow-city-night-arrival.jpeg",
+        caption: "Вечерняя Москва после возвращения"
+      },
+      {
+        src: "/videos/day-13/bangkok-moscow-flight-moment.mov",
+        caption: "Видео: кусочек перелета Бангкок -> Москва",
+        type: "video"
+      }
+    ]
+  },
+  {
+    id: "951b3081-988f-4885-a4a6-2142a1f8e9bb",
+    seedKey: "pattaya-show-99",
+    title: "Шоу 99: вечер без фотографий",
+    body:
+      "30 августа оставили телефон без новой фотогалереи и сходили на шоу 99. Это была та самая отпускная глава, которую проще запомнить ощущением, чем кадрами: вечерняя Паттайя, свет, сцена, шум вокруг и редкий момент, когда дневник специально остается почти без визуальных доказательств. Иногда так даже честнее - не все впечатления обязаны превращаться в альбом.",
+    mood: "вечер вне кадра",
+    moodColor: "magenta",
+    locationName: "Паттайя, шоу 99",
+    visitedAt: "30 августа",
+    visitedAtIso: "2026-08-30T21:30:00+07:00",
+    tags: ["паттайя", "шоу 99", "вечер", "без фото"],
+    photos: []
+  },
+  {
+    id: "8f466c9a-7fb1-40b4-90e6-f24f70cfbf46",
+    seedKey: "terminal-21-pattaya-second-walk",
+    title: "Terminal 21 Pattaya: второй круг по этажам",
+    body:
+      "29 августа снова ушли гулять по Terminal 21 Pattaya. Это не просто торговый центр, а большой туристический конструктор: каждый этаж сделан как отдельный город или страна, с декорациями, вывесками, тематическими зонами и точками, где хочется остановиться не ради покупок, а ради очередной странной детали. В этот раз больше цеплялись за японские маски, башню в центре атриума, яркие машины с подсветкой, ночной 7-Eleven и маленькие смешные находки по пути. Хороший день, когда маршрут можно строить просто по эскалаторам.",
+    mood: "город внутри молла",
+    moodColor: "purple",
+    locationName: "Terminal 21 Pattaya, Pattaya",
+    visitedAt: "29 августа",
+    visitedAtIso: "2026-08-29T20:10:00+07:00",
+    tags: ["паттайя", "terminal 21", "торговый центр", "япония", "декорации", "ночная прогулка"],
+    photos: [
+      {
+        src: "/images/day-11/terminal-21-paris-tower.jpeg",
+        caption: "Башня в центральном атриуме Terminal 21"
+      },
+      {
+        src: "/images/day-11/terminal-21-japan-masks.jpeg",
+        caption: "Японские маски и театральная стена"
+      },
+      {
+        src: "/images/day-11/terminal-21-elevator-selfie.jpeg",
+        caption: "Лифт-селфи между этажами Terminal 21"
+      },
+      {
+        src: "/images/day-11/terminal-21-monkey-wet-floor.jpeg",
+        caption: "Неожиданная деталь рядом с предупреждением о мокром полу"
+      },
+      {
+        src: "/images/day-11/terminal-21-blue-bird.jpeg",
+        caption: "Синий попутчик на деревянной террасе"
+      },
+      {
+        src: "/images/day-11/pattaya-transformer-truck-sound.jpeg",
+        caption: "Паттайская машина с подсветкой и музыкой"
+      },
+      {
+        src: "/images/day-11/pattaya-transformer-truck-side.jpeg",
+        caption: "Вечерний трак как отдельная достопримечательность"
+      },
+      {
+        src: "/images/day-11/pattaya-seven-eleven-night.jpeg",
+        caption: "Ночной 7-Eleven после прогулки"
+      }
+    ]
+  },
+  {
+    id: "9ffca100-b6b6-4816-b07e-3fb7779a8402",
+    seedKey: "terminal-21-pattaya-first-walk",
+    title: "Terminal 21 Pattaya: аэропорт, этажи-города и покупки",
+    body:
+      "28 августа ходили по Terminal 21 Pattaya - огромному моллу у северной Паттайи, который оформлен как аэропорт и путешествие по миру. Уже у входа встречает Gate 2 и настоящий самолет на фасаде, а внутри этажи превращаются в тематические зоны: Париж с башней, Токио и Япония с масками и сумо, городские декорации, фудкорт, магазины и бесконечные точки для фото. Получился день без спешки: гуляли, выбирали вещи, смеялись над декором и просто зависали в кондиционированном отпускном лабиринте.",
+    mood: "молл-путешествие",
+    moodColor: "gold",
+    locationName: "Terminal 21 Pattaya, Pattaya",
+    visitedAt: "28 августа",
+    visitedAtIso: "2026-08-28T17:40:00+07:00",
+    tags: ["паттайя", "terminal 21", "торговый центр", "покупки", "самолет", "токио", "париж"],
+    photos: [
+      {
+        src: "/images/day-10/terminal-21-gate2-high-five.jpeg",
+        caption: "High five у Gate 2 перед входом"
+      },
+      {
+        src: "/images/day-10/terminal-21-plane-couple.jpeg",
+        caption: "Самолет на фасаде Terminal 21"
+      },
+      {
+        src: "/images/day-10/terminal-21-sumo-joke.jpeg",
+        caption: "Сумо-зона и фирменный юмор прогулки"
+      },
+      {
+        src: "/images/day-10/terminal-21-shirt-balcony.jpeg",
+        caption: "Новая майка и балконный кадр после шопинга"
+      }
+    ]
+  },
+  {
     id: "2f9b0d5d-7e8d-4f15-95b4-cda41c2a0c71",
     seedKey: "ayutthaya-historic-city",
     title: "Аюттхая: древняя столица Сиама",
@@ -790,6 +934,14 @@ export const initialPosts: Post[] = [
 
 export const initialPlaces: Place[] = [
   {
+    id: "8899772c-07ef-43a4-a311-3157e92ff61e",
+    name: "Terminal 21 Pattaya",
+    category: "торговый центр",
+    rating: 5,
+    notes:
+      "Большой молл в формате аэропорта и путешествия по городам: Gate 2, самолет на фасаде, тематические этажи, фудкорт, магазины и много декораций для фото."
+  },
+  {
     id: "7aa1d2c5-0e56-4f5b-a7f0-0bd543c20157",
     name: "Historic City of Ayutthaya",
     category: "исторический парк",
@@ -864,5 +1016,5 @@ export const tripStats: TripStats = {
   places: initialPlaces.length,
   days: getInitialTripDays(initialPosts),
   ideasProgress: 33,
-  currentMood: "Аюттхая, храмы и древняя столица Сиама"
+  currentMood: "Возвращение в Москву и дорога домой на Tesla"
 };
