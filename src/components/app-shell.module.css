@@ -975,34 +975,6 @@
   border-radius: 10px;
 }
 
-.postDetailsCarousel {
-  width: 100%;
-  height: 100%;
-}
-
-.postDetailsSlide {
-  height: 64vh;
-  min-height: 420px;
-  overflow: hidden;
-  background: #101820;
-  border-radius: 10px;
-}
-
-.postDetailsSlide :global(.ant-image) {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-}
-
-.postDetailsSlide :global(.ant-image-img),
-.postDetailsSlide .mediaVideo {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
 .postDetailsEmpty {
   display: flex;
   min-height: 320px;
@@ -1661,11 +1633,6 @@
   }
 
   .postDetailsMedia {
-    min-height: 360px;
-  }
-
-  .postDetailsSlide {
-    height: min(62vh, 520px);
     min-height: 360px;
   }
 
