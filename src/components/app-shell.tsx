@@ -1436,11 +1436,11 @@ function SectionHeader({
 }) {
   return (
     <div className={styles.sectionHeader}>
-      <div>
+      <div className={styles.sectionMeta}>
         <Title level={3}>{title}</Title>
         <Text type="secondary">{subtitle}</Text>
       </div>
-      {action}
+      {action ? <div className={styles.sectionAction}>{action}</div> : null}
     </div>
   );
 }
